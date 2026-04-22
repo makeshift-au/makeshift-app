@@ -1,0 +1,123 @@
+import { NextResponse } from "next/server";
+import { stripe } from "@/lib/stripe";
+import { createClient } from "@/lib/supabase/server";
+
+// Create a Stripe Connect account and return the onboarding link
+export async function POST() {
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+    }
+
+    // Get the artist record
+    const { data: artist, error: artistErr } = await supabase
+      .from("artists")
+      .select("id, stripe_account_id, name")
+      .eq("profile_id", user.id)
+      .single();
+
+    if (artistErr || !artist) {
+      return NextResponse.json({ error: "Artist not found" }, { status: 404 });
+    }
+
+    let accountId = artist.stripe_account_id;
+
+    // Create Connect account if not yet created
+    if (!accountId) {
+      const account = await stripe.accounts.create({
+        type: "express",
+        country: "AU",
+        email: user.email,
+        capabilities: {
+          card_payments: { requested: true },
+          transfers: { requested: true },
+        },
+        business_profile: {
+          name: artist.name,
+          product_description: "Independent artist marketplace",
+        },
+      });
+
+      accountId = account.id;
+
+      // Save to DB
+      await supabase
+        .from("artists")
+        .update({ stripe_account_id: accountId })
+        .eq("id", artist.id);
+    }
+
+    // Create onboarding link
+    const accountLink = await stripe.accountLinks.create({
+      account: accountId,
+      refresh_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/billing?refresh=true`,
+      return_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/billing?setup=complete`,
+      type: "account_onboarding",
+    });
+
+    return NextResponse.json({ url: accountLink.url });
+  } catch (err) {
+    console.error("Connect error:", err);
+    return NextResponse.json(
+      { error: "Failed to create Stripe Connect account" },
+      { status: 500 },
+    );
+  }
+}
+
+// Check onboarding status
+export async function GET() {
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+    }
+
+    const { data: artist } = await supabase
+      .from("artists")
+      .select("id, stripe_account_id, stripe_onboarded")
+      .eq("profile_id", user.id)
+      .single();
+
+    if (!artist?.stripe_account_id) {
+      return NextResponse.json({
+        connected: false,
+        onboarded: false,
+      });
+    }
+
+    // Check account status with Stripe
+    const account = await stripe.accounts.retrieve(artist.stripe_account_id);
+    const isOnboarded = account.charges_enabled && account.payouts_enabled;
+
+    // Update DB if newly onboarded
+    if (isOnboarded && !artist.stripe_onboarded) {
+      await supabase
+        .from("artists")
+        .update({ stripe_onboarded: true })
+        .eq("id", artist.id);
+    }
+
+    return NextResponse.json({
+      connected: true,
+      onboarded: isOnboarded,
+      chargesEnabled: account.charges_enabled,
+      payoutsEnabled: account.payouts_enabled,
+    });
+  } catch (err) {
+    console.error("Connect status error:", err);
+    return NextResponse.json(
+      { error: "Failed to check status" },
+      { status: 500 },
+    );
+  }
+}
