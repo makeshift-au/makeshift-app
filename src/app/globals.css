@@ -41,6 +41,10 @@
 ::-webkit-scrollbar-thumb { background: var(--color-dark2); border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--color-midgrey); }
 
+/* Hide scrollbar on horizontal carousels */
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { scrollbar-width: none; -ms-overflow-style: none; }
+
 /* Marquee animation */
 @keyframes scroll {
   0% { transform: translateX(0); }
