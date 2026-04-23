@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { getArtist } from "@/lib/queries";
+import { getArtist, getListingsByArtist } from "@/lib/queries";
 import { getListingsByArtist as getMockListings } from "@/data/artists";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
@@ -18,7 +18,26 @@ export default async function ArtistPage({ params }: Props) {
   const artist = await getArtist(slug);
   if (!artist) notFound();
 
+  // Try Supabase listings first, fall back to mock
+  const dbListings = artist.id ? await getListingsByArtist(artist.id) : [];
   const mockListings = getMockListings(slug);
+
+  // Normalize both into a common shape for rendering
+  const listings = dbListings.length > 0
+    ? dbListings.map((l: any) => ({
+        id: l.slug ?? l.id,
+        title: l.title,
+        description: l.description ?? "",
+        price: l.price,
+        imageUrl: l.image_urls?.[0] ?? "",
+      }))
+    : mockListings.map((l) => ({
+        id: l.id,
+        title: l.title,
+        description: l.description,
+        price: l.price,
+        imageUrl: l.imageUrl,
+      }));
 
   return (
     <div>
@@ -58,9 +77,9 @@ export default async function ArtistPage({ params }: Props) {
             <div className="font-mono text-sm text-lime tracking-[0.1em] mb-3">
               /01 WORKS
             </div>
-            {mockListings.length > 0 ? (
+            {listings.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-12">
-                {mockListings.map((listing) => (
+                {listings.map((listing) => (
                   <Link
                     key={listing.id}
                     href={`/work/${listing.id}`}

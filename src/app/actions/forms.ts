@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { sendApplicationConfirmation } from "@/lib/email";
 
 // ---- Contact Form ----
 export async function submitContact(formData: FormData) {
@@ -115,6 +116,13 @@ export async function submitApplication(formData: FormData) {
     });
 
     if (error) throw error;
+
+    // Send confirmation email (fire-and-forget)
+    sendApplicationConfirmation({
+      applicantEmail: email,
+      applicantName: fullName,
+    }).catch((e) => console.error("Application email failed:", e));
+
     return { success: true };
   } catch (err) {
     console.error("Application form error:", err);

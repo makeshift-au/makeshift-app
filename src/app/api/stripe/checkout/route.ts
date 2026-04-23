@@ -56,8 +56,8 @@ export async function POST(request: Request) {
         listing_id: listingId,
         artist_id: artistId || artist.id,
       },
-      success_url: `${process.env.NEXT_PUBLIC_APP_URL}/checkout?success=true&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/checkout?cancelled=true`,
+      success_url: `${process.env.NEXT_PUBLIC_APP_URL}/order/confirmation?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/order/cancelled`,
     });
 
     return NextResponse.json({ url: session.url });

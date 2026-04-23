@@ -2,6 +2,10 @@ import { NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
 import { createServerClient } from "@supabase/ssr";
 import Stripe from "stripe";
+import {
+  sendOrderConfirmation,
+  sendOrderNotificationToArtist,
+} from "@/lib/email";
 
 // Use the service role key for webhook handlers (bypasses RLS)
 function createAdminClient() {
@@ -55,16 +59,23 @@ export async function POST(request: Request) {
         if (listingId && artistId) {
           const amount = (session.amount_total ?? 0) / 100;
 
-          // Get artist fee rate
+          // Get artist details
           const { data: artist } = await supabase
             .from("artists")
-            .select("fee_rate")
+            .select("fee_rate, name, profile_id")
             .eq("id", artistId)
             .single();
 
           const feeRate = (artist?.fee_rate ?? 10) / 100;
           const platformFee = Math.round(amount * feeRate * 100) / 100;
           const artistPayout = Math.round((amount - platformFee) * 100) / 100;
+
+          // Get listing title
+          const { data: listing } = await supabase
+            .from("listings")
+            .select("title")
+            .eq("id", listingId)
+            .single();
 
           // Create order record
           const orderNumber = `MKS-${Date.now().toString(36).toUpperCase()}`;
@@ -83,6 +94,44 @@ export async function POST(request: Request) {
                 : session.payment_intent?.id ?? null,
             status: "paid",
           });
+
+          // Send emails (fire-and-forget — don't block the webhook)
+          const itemTitle = listing?.title ?? "Your order";
+          const buyerEmail = session.customer_details?.email;
+          const buyerName = session.customer_details?.name ?? undefined;
+          const artistName = artist?.name ?? "the artist";
+
+          if (buyerEmail) {
+            sendOrderConfirmation({
+              buyerEmail,
+              buyerName,
+              itemTitle,
+              artistName,
+              amount,
+              orderNumber,
+            }).catch((e) => console.error("Order email failed:", e));
+          }
+
+          // Get artist email from their profile
+          if (artist?.profile_id) {
+            const { data: profile } = await supabase
+              .from("profiles")
+              .select("email")
+              .eq("id", artist.profile_id)
+              .single();
+
+            if (profile?.email) {
+              sendOrderNotificationToArtist({
+                artistEmail: profile.email,
+                artistName,
+                itemTitle,
+                buyerName,
+                amount,
+                platformFee,
+                orderNumber,
+              }).catch((e) => console.error("Artist email failed:", e));
+            }
+          }
         }
         break;
       }

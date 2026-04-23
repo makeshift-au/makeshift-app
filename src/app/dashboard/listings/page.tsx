@@ -1,8 +1,16 @@
+import { getCurrentArtist, getMyListings } from "@/lib/dashboard";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = { title: "Listings" };
 
-export default function DashboardListingsPage() {
+export default async function DashboardListingsPage() {
+  const artist = await getCurrentArtist();
+  const listings = artist ? await getMyListings(artist.id) : [];
+
+  const liveCount = listings.filter((l: any) => l.status === "live").length;
+  const soldCount = listings.filter((l: any) => l.status === "sold").length;
+  const draftCount = listings.filter((l: any) => l.status === "draft").length;
+
   return (
     <>
       <div className="font-mono text-xs text-lime tracking-[0.1em] mb-2">
@@ -16,50 +24,65 @@ export default function DashboardListingsPage() {
       </p>
 
       <div className="flex justify-between items-center mb-6">
-        <p className="text-midgrey">12 listings · 2 sold · 1 draft</p>
-        <button className="bg-lime text-black px-5 py-2.5 rounded-full font-semibold text-sm">+ New listing</button>
+        <p className="text-midgrey">
+          {listings.length} listing{listings.length !== 1 ? "s" : ""}
+          {soldCount > 0 && ` · ${soldCount} sold`}
+          {draftCount > 0 && ` · ${draftCount} draft`}
+        </p>
+        <button className="bg-lime text-black px-5 py-2.5 rounded-full font-semibold text-sm">
+          + New listing
+        </button>
       </div>
-      <div className="bg-dark1 border border-dark2 rounded-2xl overflow-hidden">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-dark2">
-              <th className="text-left font-mono text-[10px] text-midgrey tracking-[0.15em] uppercase p-4 font-normal">Work</th>
-              <th className="text-left font-mono text-[10px] text-midgrey tracking-[0.15em] uppercase p-4 font-normal">Price</th>
-              <th className="text-left font-mono text-[10px] text-midgrey tracking-[0.15em] uppercase p-4 font-normal">Status</th>
-              <th className="text-right font-mono text-[10px] text-midgrey tracking-[0.15em] uppercase p-4 font-normal">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {[
-              ["Lime Viper", "$320", "LIVE"],
-              ["Orange Heat", "$340", "LIVE"],
-              ["Black Ops", "$380", "SOLD"],
-              ["Custom Tier 1", "from $280", "LIVE"],
-              ["Custom Tier 2", "from $420", "LIVE"],
-              ["Draft #6", "—", "DRAFT"],
-            ].map(([name, price, status]) => (
-              <tr key={name} className="border-b border-dark2 last:border-b-0 hover:bg-black">
-                <td className="p-4 flex items-center gap-3">
-                  <div className="w-10 h-10 bg-acid rounded-lg flex-shrink-0" />
-                  <span className="font-display font-bold">{name}</span>
-                </td>
-                <td className="p-4">{price}</td>
-                <td className="p-4">
-                  <span className={`inline-block font-mono text-[10px] font-bold tracking-[0.1em] px-3 py-1 rounded-full uppercase ${
-                    status === "LIVE" ? "bg-lime/15 text-lime" :
-                    status === "SOLD" ? "bg-pink/15 text-pink" :
-                    "bg-dark2 text-midgrey"
-                  }`}>{status}</span>
-                </td>
-                <td className="p-4 text-right">
-                  <button className="border border-dark2 text-white px-3 py-1.5 rounded-full text-xs hover:border-lime hover:text-lime transition-colors">Edit</button>
-                </td>
+
+      {listings.length === 0 ? (
+        <div className="bg-dark1 border border-dark2 rounded-2xl p-12 text-center">
+          <div className="text-4xl mb-4">🎨</div>
+          <h3 className="font-display font-bold text-xl mb-2">No listings yet</h3>
+          <p className="text-midgrey text-sm max-w-sm mx-auto">
+            Add your first listing to start selling on Makeshift.
+            Each listing is a single piece or commission type.
+          </p>
+        </div>
+      ) : (
+        <div className="bg-dark1 border border-dark2 rounded-2xl overflow-hidden">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-dark2">
+                <th className="text-left font-mono text-[10px] text-midgrey tracking-[0.15em] uppercase p-4 font-normal">Work</th>
+                <th className="text-left font-mono text-[10px] text-midgrey tracking-[0.15em] uppercase p-4 font-normal">Price</th>
+                <th className="text-left font-mono text-[10px] text-midgrey tracking-[0.15em] uppercase p-4 font-normal">Status</th>
+                <th className="text-right font-mono text-[10px] text-midgrey tracking-[0.15em] uppercase p-4 font-normal">Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    
+            </thead>
+            <tbody>
+              {listings.map((listing: any) => (
+                <tr key={listing.id} className="border-b border-dark2 last:border-b-0 hover:bg-black">
+                  <td className="p-4 flex items-center gap-3">
+                    <div className="w-10 h-10 bg-acid rounded-lg flex-shrink-0" />
+                    <span className="font-display font-bold">{listing.title}</span>
+                  </td>
+                  <td className="p-4">
+                    {listing.price_type === "from" ? "from " : ""}${listing.price}
+                  </td>
+                  <td className="p-4">
+                    <span className={`inline-block font-mono text-[10px] font-bold tracking-[0.1em] px-3 py-1 rounded-full uppercase ${
+                      listing.status === "live" ? "bg-lime/15 text-lime" :
+                      listing.status === "sold" ? "bg-pink/15 text-pink" :
+                      listing.status === "paused" ? "bg-orange/15 text-orange" :
+                      "bg-dark2 text-midgrey"
+                    }`}>{listing.status}</span>
+                  </td>
+                  <td className="p-4 text-right">
+                    <button className="border border-dark2 text-white px-3 py-1.5 rounded-full text-xs hover:border-lime hover:text-lime transition-colors">
+                      Edit
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </>
   );
 }

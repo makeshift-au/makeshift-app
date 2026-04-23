@@ -109,6 +109,7 @@ create policy "Categories are viewable by everyone"
 create table public.listings (
   id uuid default uuid_generate_v4() primary key,
   artist_id uuid references public.artists(id) on delete cascade not null,
+  slug text unique not null,
   title text not null,
   description text,
   price numeric(10,2) not null,

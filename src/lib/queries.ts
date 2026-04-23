@@ -152,13 +152,17 @@ export async function getListingsByArtist(artistId: string) {
   }
 }
 
-export async function getListing(id: string) {
+export async function getListing(idOrSlug: string) {
   try {
     const supabase = await createClient();
+
+    // Try by UUID first, then by slug
+    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(idOrSlug);
+
     const { data, error } = await supabase
       .from("listings")
       .select("*, artists(*)")
-      .eq("id", id)
+      .eq(isUUID ? "id" : "slug", idOrSlug)
       .single();
 
     if (error) throw error;
@@ -184,6 +188,7 @@ function realArtistsFirst(artists: Artist[]): Artist[] {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function mapDBArtist(row: any): Artist {
   return {
+    id: row.id,
     slug: row.slug,
     name: row.name,
     discipline: row.discipline,
