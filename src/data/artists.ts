@@ -31,17 +31,44 @@ export type Listing = {
 };
 
 export const categories = [
-  { slug: "fashion", label: "Fashion", bg: "bg-sand", count: 1 },
-  { slug: "music", label: "Music", bg: "bg-navy", count: 0 },
-  { slug: "visual-art", label: "Visual Art", bg: "bg-rust", count: 0 },
-  { slug: "ceramics", label: "Ceramics", bg: "bg-terra", count: 0 },
-  { slug: "tattoo", label: "Tattoo", bg: "bg-char", count: 0 },
-  { slug: "jewellery", label: "Jewellery", bg: "bg-gold", count: 0 },
-  { slug: "graphic", label: "Graphic", bg: "bg-acid", count: 0 },
-  { slug: "photography", label: "Photography", bg: "bg-ink", count: 0 },
+  { slug: "fashion", label: "Fashion", bg: "bg-sand", count: 7 },
+  { slug: "music", label: "Music", bg: "bg-navy", count: 5 },
+  { slug: "visual-art", label: "Visual Art", bg: "bg-rust", count: 6 },
+  { slug: "ceramics", label: "Ceramics", bg: "bg-terra", count: 6 },
+  { slug: "tattoo", label: "Tattoo", bg: "bg-char", count: 6 },
+  { slug: "jewellery", label: "Jewellery", bg: "bg-gold", count: 5 },
+  { slug: "graphic", label: "Graphic", bg: "bg-acid", count: 6 },
+  { slug: "photography", label: "Photography", bg: "bg-ink", count: 6 },
 ] as const;
 
 export type Category = (typeof categories)[number];
+
+// Helper to generate placeholder artists
+function makePlaceholder(
+  n: number,
+  discipline: string,
+  location: string,
+  bg: string,
+  extras?: Partial<Artist>,
+): Artist {
+  return {
+    slug: `artist-${n}`,
+    name: `Artist ${n}`,
+    discipline,
+    location,
+    tagline: "Placeholder artist profile",
+    bio: "This is a placeholder artist profile. Real artist coming soon.",
+    instagram: "",
+    bg,
+    featured: false,
+    commissions: false,
+    priceRange: "$50–$500",
+    listings: 0,
+    orders30d: 0,
+    gmv30d: 0,
+    ...extras,
+  };
+}
 
 export const artists: Artist[] = [
   {
@@ -62,6 +89,54 @@ export const artists: Artist[] = [
     avatarUrl: "/images/maccs-customs/profile.jpg",
     heroUrl: "/images/maccs-customs/profile.jpg",
   },
+  // Featured placeholders (show in hero grid)
+  makePlaceholder(2, "fashion", "Brunswick", "bg-sand", { featured: true, commissions: true }),
+  makePlaceholder(3, "tattoo", "Fitzroy", "bg-char", { featured: true, commissions: true }),
+  makePlaceholder(4, "music", "Northcote", "bg-navy", { featured: true }),
+  makePlaceholder(5, "visual-art", "Brunswick", "bg-rust", { featured: true, commissions: true }),
+  makePlaceholder(6, "ceramics", "Collingwood", "bg-terra", { featured: true }),
+  makePlaceholder(7, "jewellery", "Fitzroy", "bg-gold", { featured: true }),
+  makePlaceholder(8, "graphic", "Richmond", "bg-acid", { featured: true }),
+  // Non-featured placeholders across disciplines
+  makePlaceholder(9, "fashion", "Collingwood", "bg-sand"),
+  makePlaceholder(10, "fashion", "Richmond", "bg-sand"),
+  makePlaceholder(11, "fashion", "Northcote", "bg-sand"),
+  makePlaceholder(12, "fashion", "Prahran", "bg-sand"),
+  makePlaceholder(13, "fashion", "St Kilda", "bg-sand"),
+  makePlaceholder(14, "music", "Fitzroy", "bg-navy"),
+  makePlaceholder(15, "music", "Brunswick", "bg-navy"),
+  makePlaceholder(16, "music", "Collingwood", "bg-navy"),
+  makePlaceholder(17, "music", "Northcote", "bg-navy"),
+  makePlaceholder(18, "visual-art", "Fitzroy", "bg-rust"),
+  makePlaceholder(19, "visual-art", "Collingwood", "bg-rust"),
+  makePlaceholder(20, "visual-art", "Richmond", "bg-rust"),
+  makePlaceholder(21, "visual-art", "Northcote", "bg-rust"),
+  makePlaceholder(22, "visual-art", "Brunswick", "bg-rust"),
+  makePlaceholder(23, "ceramics", "Fitzroy", "bg-terra"),
+  makePlaceholder(24, "ceramics", "Collingwood", "bg-terra"),
+  makePlaceholder(25, "ceramics", "Brunswick", "bg-terra"),
+  makePlaceholder(26, "ceramics", "Northcote", "bg-terra"),
+  makePlaceholder(27, "ceramics", "Richmond", "bg-terra"),
+  makePlaceholder(28, "tattoo", "Brunswick", "bg-char"),
+  makePlaceholder(29, "tattoo", "Collingwood", "bg-char"),
+  makePlaceholder(30, "tattoo", "Richmond", "bg-char"),
+  makePlaceholder(31, "tattoo", "Northcote", "bg-char"),
+  makePlaceholder(32, "tattoo", "St Kilda", "bg-char"),
+  makePlaceholder(33, "jewellery", "Brunswick", "bg-gold"),
+  makePlaceholder(34, "jewellery", "Collingwood", "bg-gold"),
+  makePlaceholder(35, "jewellery", "Richmond", "bg-gold"),
+  makePlaceholder(36, "jewellery", "Northcote", "bg-gold"),
+  makePlaceholder(37, "graphic", "Fitzroy", "bg-acid"),
+  makePlaceholder(38, "graphic", "Collingwood", "bg-acid"),
+  makePlaceholder(39, "graphic", "Brunswick", "bg-acid"),
+  makePlaceholder(40, "graphic", "Richmond", "bg-acid"),
+  makePlaceholder(41, "graphic", "Northcote", "bg-acid"),
+  makePlaceholder(42, "photography", "Fitzroy", "bg-ink"),
+  makePlaceholder(43, "photography", "Brunswick", "bg-ink"),
+  makePlaceholder(44, "photography", "Collingwood", "bg-ink"),
+  makePlaceholder(45, "photography", "Richmond", "bg-ink"),
+  makePlaceholder(46, "photography", "Northcote", "bg-ink"),
+  makePlaceholder(47, "photography", "St Kilda", "bg-ink"),
 ];
 
 export const listings: Listing[] = [
