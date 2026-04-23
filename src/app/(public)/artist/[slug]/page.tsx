@@ -1,5 +1,7 @@
 import Link from "next/link";
+import Image from "next/image";
 import { getArtist } from "@/lib/queries";
+import { getListingsByArtist as getMockListings } from "@/data/artists";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 
@@ -16,10 +18,21 @@ export default async function ArtistPage({ params }: Props) {
   const artist = await getArtist(slug);
   if (!artist) notFound();
 
+  const mockListings = getMockListings(slug);
+
   return (
     <div>
       {/* Hero */}
-      <div className={`${artist.bg} h-64 md:h-80 relative`}>
+      <div className={`${artist.bg} h-64 md:h-80 relative overflow-hidden`}>
+        {artist.heroUrl && (
+          <Image
+            src={artist.heroUrl}
+            alt={artist.name}
+            fill
+            className="object-cover object-top"
+            priority
+          />
+        )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
         <div className="absolute bottom-0 left-0 right-0 px-6 md:px-12 pb-8">
           <div className="max-w-6xl mx-auto">
@@ -41,21 +54,55 @@ export default async function ArtistPage({ params }: Props) {
               {artist.bio}
             </p>
 
-            {/* Sample works grid */}
+            {/* Works grid */}
             <div className="font-mono text-sm text-lime tracking-[0.1em] mb-3">
               /01 WORKS
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-12">
-              {Array.from({ length: Math.min(artist.listings || 6, 6) }).map(
-                (_, i) => (
+            {mockListings.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-12">
+                {mockListings.map((listing) => (
                   <Link
-                    key={i}
-                    href={`/work/${artist.slug}-${i + 1}`}
-                    className={`${artist.bg} h-48 rounded-xl hover:-translate-y-1 transition-transform block`}
-                  />
-                ),
-              )}
-            </div>
+                    key={listing.id}
+                    href={`/work/${listing.id}`}
+                    className="group block bg-dark1 border border-dark2 rounded-2xl overflow-hidden hover:border-lime/40 transition-all hover:-translate-y-1"
+                  >
+                    <div className={`${artist.bg} h-72 relative overflow-hidden`}>
+                      {listing.imageUrl && (
+                        <Image
+                          src={listing.imageUrl}
+                          alt={listing.title}
+                          fill
+                          className="object-cover"
+                          sizes="(max-width: 768px) 100vw, 50vw"
+                        />
+                      )}
+                    </div>
+                    <div className="p-5">
+                      <h3 className="font-display font-bold text-lg group-hover:text-lime transition-colors">
+                        {listing.title}
+                      </h3>
+                      <p className="text-sm text-lightgrey mt-1 line-clamp-2">
+                        {listing.description}
+                      </p>
+                      <div className="mt-3 font-display font-[800] text-xl text-lime">
+                        ${listing.price}
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-12">
+                {Array.from({ length: Math.min(artist.listings || 6, 6) }).map(
+                  (_, i) => (
+                    <div
+                      key={i}
+                      className={`${artist.bg} h-48 rounded-xl`}
+                    />
+                  ),
+                )}
+              </div>
+            )}
 
             {artist.commissions && (
               <>
@@ -84,7 +131,16 @@ export default async function ArtistPage({ params }: Props) {
           {/* Sidebar */}
           <div>
             <div className="bg-dark1 border border-dark2 rounded-2xl p-6 sticky top-24">
-              <div className={`${artist.bg} w-20 h-20 rounded-full mx-auto mb-4`} />
+              <div className={`${artist.bg} w-20 h-20 rounded-full mx-auto mb-4 relative overflow-hidden`}>
+                {artist.avatarUrl && (
+                  <Image
+                    src={artist.avatarUrl}
+                    alt={artist.name}
+                    fill
+                    className="object-cover object-top"
+                  />
+                )}
+              </div>
               <h2 className="font-display font-bold text-xl text-center mb-1">
                 {artist.name}
               </h2>

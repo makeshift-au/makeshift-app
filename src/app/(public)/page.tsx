@@ -115,8 +115,8 @@ export default async function HomePage() {
         <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
           {[
             [String(artists.length), "Approved artists"],
-            ["383", "Original works"],
-            ["$48K+", "GMV this month"],
+            ["2", "Original works"],
+            ["$360", "GMV this month"],
             ["10%", "Only fee. Ever."],
           ].map(([num, label]) => (
             <div key={label}>

@@ -184,8 +184,10 @@ function mapDBArtist(row: any): Artist {
     featured: row.featured ?? false,
     commissions: row.commissions ?? false,
     priceRange: row.price_range ?? "",
-    listings: 0, // will be computed when listings are populated
+    listings: 0,
     orders30d: 0,
     gmv30d: 0,
+    avatarUrl: row.avatar_url ?? undefined,
+    heroUrl: row.hero_url ?? undefined,
   };
 }

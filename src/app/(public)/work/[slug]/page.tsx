@@ -1,13 +1,40 @@
 import Link from "next/link";
+import Image from "next/image";
+import { getListing, artists } from "@/data/artists";
+import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 
-export default async function WorkPage({ params }: { params: Promise<{ slug: string }> }) {
+type Props = { params: Promise<{ slug: string }> };
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
+  const listing = getListing(slug);
+  return { title: listing?.title ?? "Work" };
+}
+
+export default async function WorkPage({ params }: Props) {
+  const { slug } = await params;
+  const listing = getListing(slug);
+
+  if (!listing) notFound();
+
+  const artist = artists.find((a) => a.slug === listing.artistSlug);
 
   return (
     <div className="px-6 md:px-12 py-16">
       <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12">
         {/* Image */}
-        <div className="bg-acid rounded-2xl h-[500px]" />
+        <div className={`${artist?.bg ?? "bg-acid"} rounded-2xl h-[500px] relative overflow-hidden`}>
+          {listing.imageUrl && (
+            <Image
+              src={listing.imageUrl}
+              alt={listing.title}
+              fill
+              className="object-cover"
+              priority
+            />
+          )}
+        </div>
 
         {/* Details */}
         <div>
@@ -15,29 +42,26 @@ export default async function WorkPage({ params }: { params: Promise<{ slug: str
             / WORK
           </div>
           <h1 className="font-display font-[800] text-5xl leading-[0.92] tracking-[-0.02em] mb-2">
-            Lime Viper
+            {listing.title}
           </h1>
           <p className="font-mono text-sm text-midgrey tracking-[0.05em] mb-6">
-            BY MACCS CUSTOMS &middot; CUSTOM LEATHER JACKET
+            BY {artist?.name.toUpperCase() ?? "UNKNOWN"} &middot; HAND-PAINTED SHIRT
           </p>
 
           <div className="font-display font-[800] text-4xl text-lime mb-6">
-            $320
+            ${listing.price}
           </div>
 
           <p className="text-lightgrey leading-relaxed mb-8">
-            Hand-cut and stitched custom leather jacket in acid lime with black
-            panel detailing. Reclaimed leather, YKK hardware, cotton-lined.
-            One of one. Will not be remade.
+            {listing.description}
           </p>
 
           <div className="space-y-3 mb-8 text-sm">
             {[
-              ["Material", "Reclaimed leather, cotton lining"],
-              ["Hardware", "YKK zippers, brass snaps"],
-              ["Size", "Made to measure"],
+              ["Material", listing.material],
+              ["Size", listing.dimensions],
               ["Condition", "New — handmade to order"],
-              ["Lead time", "3-4 weeks"],
+              ["Lead time", listing.leadTime],
             ].map(([k, v]) => (
               <div key={k} className="flex justify-between border-b border-dark2 pb-3">
                 <span className="text-midgrey">{k}</span>
@@ -54,7 +78,7 @@ export default async function WorkPage({ params }: { params: Promise<{ slug: str
               Buy now &rarr;
             </Link>
             <Link
-              href="/enquire?artist=maccs-customs"
+              href={`/enquire?artist=${listing.artistSlug}`}
               className="flex-1 border border-dark2 text-white py-4 rounded-full text-center hover:border-lime hover:text-lime transition-colors"
             >
               Enquire
