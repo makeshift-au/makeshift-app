@@ -1,5 +1,7 @@
--- Add slug column to listings (for SEO-friendly URLs)
 -- Run this in the Supabase SQL editor
+-- Also: create a Storage bucket called "images" with public access in Supabase Dashboard → Storage
+
+-- Add slug column to listings (for SEO-friendly URLs)
 
 ALTER TABLE public.listings ADD COLUMN IF NOT EXISTS slug text UNIQUE;
 

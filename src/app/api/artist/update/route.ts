@@ -15,7 +15,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { artistId, name, tagline, bio, location, instagram, website, commissions, price_range } = body;
+    const { artistId, ...updates } = body;
 
     // Verify this artist belongs to the current user
     const { data: artist } = await supabase
@@ -28,20 +28,19 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Not authorized" }, { status: 403 });
     }
 
+    // Only allow updating safe fields
+    const allowedFields = ["name", "tagline", "bio", "location", "instagram", "website", "commissions", "price_range", "status"];
+    const safeUpdates: Record<string, unknown> = { updated_at: new Date().toISOString() };
+    for (const key of allowedFields) {
+      if (key in updates && updates[key] !== undefined) {
+        safeUpdates[key] = updates[key];
+      }
+    }
+
     // Update the artist record
     const { error } = await supabase
       .from("artists")
-      .update({
-        name,
-        tagline,
-        bio,
-        location,
-        instagram,
-        website,
-        commissions,
-        price_range,
-        updated_at: new Date().toISOString(),
-      })
+      .update(safeUpdates)
       .eq("id", artistId);
 
     if (error) {

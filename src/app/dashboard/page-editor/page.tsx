@@ -1,5 +1,6 @@
 import { getCurrentArtist } from "@/lib/dashboard";
 import ProfileEditor from "@/components/ProfileEditor";
+import ImageUpload from "@/components/ImageUpload";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = { title: "My Page" };
@@ -20,19 +21,38 @@ export default async function DashboardPageEditorPage() {
       </p>
 
       {artist ? (
-        <ProfileEditor
-          artist={{
-            id: artist.id,
-            name: artist.name,
-            tagline: artist.tagline ?? "",
-            bio: artist.bio ?? "",
-            location: artist.location ?? "",
-            instagram: artist.instagram ?? "",
-            website: artist.website ?? "",
-            commissions: artist.commissions ?? false,
-            price_range: artist.price_range ?? "",
-          }}
-        />
+        <>
+          <div className="bg-dark1 border border-dark2 rounded-2xl p-6 mb-6">
+            <h2 className="font-display font-bold text-xl mb-4">Images</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <ImageUpload
+                artistId={artist.id}
+                type="hero"
+                currentUrl={artist.hero_url ?? undefined}
+                label="Hero image"
+              />
+              <ImageUpload
+                artistId={artist.id}
+                type="avatar"
+                currentUrl={artist.avatar_url ?? undefined}
+                label="Profile photo"
+              />
+            </div>
+          </div>
+          <ProfileEditor
+            artist={{
+              id: artist.id,
+              name: artist.name,
+              tagline: artist.tagline ?? "",
+              bio: artist.bio ?? "",
+              location: artist.location ?? "",
+              instagram: artist.instagram ?? "",
+              website: artist.website ?? "",
+              commissions: artist.commissions ?? false,
+              price_range: artist.price_range ?? "",
+            }}
+          />
+        </>
       ) : (
         <div className="bg-dark1 border border-dark2 rounded-2xl p-12 text-center">
           <h3 className="font-display font-bold text-xl mb-2">No artist profile found</h3>
