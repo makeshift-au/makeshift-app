@@ -10,7 +10,19 @@ type Props = { params: Promise<{ slug: string }> };
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const artist = await getArtist(slug);
-  return { title: artist?.name ?? "Artist" };
+  if (!artist) return { title: "Artist — Makeshift" };
+  const description = artist.bio
+    ? `${artist.bio.slice(0, 155)}…`
+    : `Discover original work by ${artist.name} on Makeshift — Australia's curated marketplace for independent artists.`;
+  return {
+    title: `${artist.name} — Makeshift`,
+    description,
+    openGraph: {
+      title: artist.name,
+      description,
+      ...(artist.avatarUrl ? { images: [{ url: artist.avatarUrl }] } : {}),
+    },
+  };
 }
 
 export default async function ArtistPage({ params }: Props) {

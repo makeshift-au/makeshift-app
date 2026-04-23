@@ -35,6 +35,12 @@ export default function Nav() {
           For Creators
         </Link>
         <Link
+          href="/login"
+          className={`hidden md:inline text-sm ${linkClass("/login")}`}
+        >
+          Artist Login
+        </Link>
+        <Link
           href="/join"
           className="bg-lime text-black px-5 py-2.5 rounded-full font-semibold text-sm hover:-translate-y-0.5 transition-transform"
         >

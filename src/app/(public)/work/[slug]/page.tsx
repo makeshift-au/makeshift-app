@@ -11,7 +11,19 @@ type Props = { params: Promise<{ slug: string }> };
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const listing = await resolveListingBySlug(slug);
-  return { title: listing?.title ?? "Work" };
+  if (!listing) return { title: "Work — Makeshift" };
+  const description = listing.description
+    ? `${listing.description.slice(0, 155)}…`
+    : `${listing.title} by ${listing.artistName} — available on Makeshift.`;
+  return {
+    title: `${listing.title} by ${listing.artistName} — Makeshift`,
+    description,
+    openGraph: {
+      title: `${listing.title} by ${listing.artistName}`,
+      description,
+      ...(listing.imageUrl ? { images: [{ url: listing.imageUrl }] } : {}),
+    },
+  };
 }
 
 /** Try Supabase first (by slug column), fall back to mock data */
