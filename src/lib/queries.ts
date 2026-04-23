@@ -33,9 +33,9 @@ export async function getAllArtists(): Promise<Artist[]> {
 
     if (error || !data || data.length === 0) throw new Error("fallback");
 
-    return data.map(mapDBArtist);
+    return realArtistsFirst(data.map(mapDBArtist));
   } catch {
-    return mockArtists;
+    return realArtistsFirst(mockArtists);
   }
 }
 
@@ -68,9 +68,9 @@ export async function getFeaturedArtists(): Promise<Artist[]> {
 
     if (error || !data || data.length === 0) throw new Error("fallback");
 
-    return data.map(mapDBArtist);
+    return realArtistsFirst(data.map(mapDBArtist));
   } catch {
-    return mockArtists.filter((a) => a.featured);
+    return realArtistsFirst(mockArtists.filter((a) => a.featured));
   }
 }
 
@@ -88,9 +88,9 @@ export async function getArtistsByCategory(
 
     if (error || !data || data.length === 0) throw new Error("fallback");
 
-    return data.map(mapDBArtist);
+    return realArtistsFirst(data.map(mapDBArtist));
   } catch {
-    return mockArtists.filter((a) => a.discipline === categorySlug);
+    return realArtistsFirst(mockArtists.filter((a) => a.discipline === categorySlug));
   }
 }
 
@@ -166,6 +166,17 @@ export async function getListing(id: string) {
   } catch {
     return null;
   }
+}
+
+// ---- Helper: real artists (with content) float to top ----
+
+function realArtistsFirst(artists: Artist[]): Artist[] {
+  return artists.sort((a, b) => {
+    const aReal = a.heroUrl ? 1 : 0;
+    const bReal = b.heroUrl ? 1 : 0;
+    if (aReal !== bReal) return bReal - aReal; // artists with images first
+    return a.name.localeCompare(b.name);
+  });
 }
 
 // ---- Helper: map DB row to Artist type ----
