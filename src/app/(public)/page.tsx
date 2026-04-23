@@ -13,13 +13,13 @@ export default async function HomePage() {
   return (
     <>
       {/* Hero */}
-      <section className="relative px-6 md:px-12 pt-20 pb-24 border-b border-dark2">
+      <section className="relative px-6 md:px-12 pt-28 pb-24 border-b border-dark2">
         <div className="absolute inset-0 bg-[repeating-linear-gradient(45deg,rgba(200,255,0,0.03)_0_2px,transparent_2px_40px)] pointer-events-none" />
         <div className="max-w-6xl mx-auto relative">
           <div className="font-mono text-sm text-lime tracking-[0.15em] mb-4">
             / CURATED MARKETPLACE
           </div>
-          <h1 className="font-display font-[800] text-[clamp(56px,10vw,120px)] leading-[0.9] tracking-[-0.03em] mb-6">
+          <h1 className="font-display font-[800] text-[clamp(56px,10vw,120px)] leading-[1.0] tracking-[-0.03em] mb-6">
             Discover
             <br />
             independent
