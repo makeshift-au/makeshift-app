@@ -34,12 +34,12 @@ export default function CheckoutPage() {
           {/* Shipping */}
           <div className="mb-8">
             <h2 className="font-display font-bold text-xl mb-4">Shipping</h2>
-            <div className="grid grid-cols-2 gap-3 mb-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
               <input placeholder="First name" className="bg-dark1 border border-dark2 rounded-xl px-4 py-3.5 text-white placeholder:text-midgrey focus:border-lime focus:outline-none" />
               <input placeholder="Last name" className="bg-dark1 border border-dark2 rounded-xl px-4 py-3.5 text-white placeholder:text-midgrey focus:border-lime focus:outline-none" />
             </div>
             <input placeholder="Address" className="w-full bg-dark1 border border-dark2 rounded-xl px-4 py-3.5 text-white placeholder:text-midgrey focus:border-lime focus:outline-none mb-3" />
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <input placeholder="City" className="bg-dark1 border border-dark2 rounded-xl px-4 py-3.5 text-white placeholder:text-midgrey focus:border-lime focus:outline-none" />
               <input placeholder="State" className="bg-dark1 border border-dark2 rounded-xl px-4 py-3.5 text-white placeholder:text-midgrey focus:border-lime focus:outline-none" />
               <input placeholder="Postcode" className="bg-dark1 border border-dark2 rounded-xl px-4 py-3.5 text-white placeholder:text-midgrey focus:border-lime focus:outline-none" />
@@ -49,7 +49,7 @@ export default function CheckoutPage() {
           {/* Payment */}
           <div className="mb-8">
             <h2 className="font-display font-bold text-xl mb-4">Payment</h2>
-            <div className="flex gap-2 mb-4">
+            <div className="flex flex-wrap gap-2 mb-4">
               {["Card", "Apple Pay", "Google Pay", "Afterpay"].map((m) => (
                 <button
                   key={m}

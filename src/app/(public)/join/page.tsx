@@ -42,7 +42,7 @@ export default function JoinPage() {
           Start application &rarr;
         </Link>
 
-        <div className="mt-12 grid grid-cols-4 gap-3">
+        <div className="mt-12 grid grid-cols-2 sm:grid-cols-4 gap-3">
           {["01 About You", "02 Your Work", "03 Your Page", "04 Submit"].map(
             (s) => (
               <div key={s}>
