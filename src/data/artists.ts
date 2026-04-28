@@ -32,12 +32,12 @@ export type Listing = {
 };
 
 export const categories = [
-  { slug: "fashion", label: "Fashion", bg: "bg-sand", count: 1, image: "https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=600&q=80" },
+  { slug: "fashion", label: "Fashion", bg: "bg-sand", count: 1, image: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=600&q=80" },
   { slug: "music", label: "Music", bg: "bg-navy", count: 0, image: "https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=600&q=80" },
   { slug: "visual-art", label: "Visual Art", bg: "bg-rust", count: 0, image: "https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?w=600&q=80" },
   { slug: "ceramics", label: "Ceramics", bg: "bg-terra", count: 0, image: "https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?w=600&q=80" },
   { slug: "tattoo", label: "Tattoo", bg: "bg-char", count: 0, image: "https://images.unsplash.com/photo-1611501275019-9b5cda994e8d?w=600&q=80" },
-  { slug: "jewellery", label: "Jewellery", bg: "bg-gold", count: 0, image: "https://images.unsplash.com/photo-1515562141589-67f0d569b6f4?w=600&q=80" },
+  { slug: "jewellery", label: "Jewellery", bg: "bg-gold", count: 0, image: "https://images.unsplash.com/photo-1617038260897-41a1f14a8ca0?w=600&q=80" },
   { slug: "graphic", label: "Graphic Design", bg: "bg-acid", count: 0, image: "https://images.unsplash.com/photo-1626785774573-4b799315345d?w=600&q=80" },
   { slug: "photography", label: "Photography", bg: "bg-ink", count: 0, image: "https://images.unsplash.com/photo-1452587925148-ce544e77e70d?w=600&q=80" },
 ] as const;
