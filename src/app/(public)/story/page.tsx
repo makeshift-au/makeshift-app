@@ -44,7 +44,7 @@ export default function StoryPage() {
           <p className="text-lightgrey leading-relaxed mb-8">
             So that&rsquo;s what we&rsquo;re doing. One artist at a time, one
             sale at a time, starting in Melbourne and expanding from there. The
-            first 50 artists pay half the fee for their first year. The
+            first 25 artists get a free subscription for 6 months. The
             community shapes the platform. And we stay bootstrapped so
             we&rsquo;re accountable to artists, not investors.
           </p>

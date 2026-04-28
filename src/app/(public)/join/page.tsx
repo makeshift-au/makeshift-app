@@ -23,7 +23,7 @@ export default function JoinPage() {
               Founding Artist Offer
             </h3>
             <span className="font-mono text-sm text-lime tracking-[0.1em]">
-              47/50
+              1/25
             </span>
           </div>
           <p className="text-lightgrey mb-4">
@@ -31,7 +31,7 @@ export default function JoinPage() {
             10% commission on sales — same as everyone. No lock-in.
           </p>
           <div className="w-full bg-dark2 rounded-full h-2">
-            <div className="bg-lime rounded-full h-2" style={{ width: "94%" }} />
+            <div className="bg-lime rounded-full h-2" style={{ width: "4%" }} />
           </div>
         </div>
 

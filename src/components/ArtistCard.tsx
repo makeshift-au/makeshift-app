@@ -24,11 +24,6 @@ export default function ArtistCard({ artist }: { artist: Artist }) {
             Featured
           </span>
         )}
-        {artist.commissions && (
-          <span className="absolute top-3 right-3 bg-blue/80 text-white font-mono text-[10px] font-bold tracking-[0.1em] px-3 py-1 rounded-full uppercase z-10">
-            Commissions
-          </span>
-        )}
       </div>
 
       {/* Info */}
