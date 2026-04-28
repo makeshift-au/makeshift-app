@@ -118,11 +118,18 @@ export async function getCategories() {
       counts[a.discipline] = (counts[a.discipline] || 0) + 1;
     });
 
+    // Map category images from mock data for now
+    const imageMap: Record<string, string> = {};
+    mockCategories.forEach((mc) => {
+      if (mc.image) imageMap[mc.slug] = mc.image;
+    });
+
     return cats.map((c: DBCategory) => ({
       slug: c.slug,
       label: c.label,
       bg: c.bg,
       count: counts[c.slug] || 0,
+      image: imageMap[c.slug] || "",
     }));
   } catch {
     return [...mockCategories];

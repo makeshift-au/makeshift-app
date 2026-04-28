@@ -29,7 +29,7 @@ export default function ForCreatorsPage() {
             Apply now &rarr;
           </Link>
           <div className="font-mono text-xs text-midgrey tracking-[0.1em] mt-3">
-            FOUNDING ARTIST OFFER &middot; 3 SPOTS LEFT &middot; 5% FEE FOR 12 MONTHS
+            FOUNDING ARTIST OFFER &middot; FREE FOR 6 MONTHS &middot; 10% COMMISSION
           </div>
         </div>
       </section>
@@ -44,7 +44,7 @@ export default function ForCreatorsPage() {
             {[
               ["Apply in 15 min", "Fill out 4 short steps — your story, your work, your page. We review within a week."],
               ["List and sell", "Upload your work, set your prices, accept commissions. We handle checkout and payments."],
-              ["Get paid weekly", "10% per sale, no listing fees. Payouts every Friday via Stripe. Founding artists: 5%."],
+              ["Get paid weekly", "10% per sale, no listing fees. Payouts every Friday via Stripe. Founding artists get a free subscription for 6 months."],
             ].map(([t, d], i) => (
               <div key={t} className="bg-dark1 border border-dark2 rounded-2xl p-6">
                 <div className="font-mono text-xs text-lime tracking-[0.1em] mb-3">

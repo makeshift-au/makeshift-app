@@ -1,13 +1,13 @@
 import Link from "next/link";
+import Image from "next/image";
 import Marquee from "@/components/Marquee";
 import ArtistCard from "@/components/ArtistCard";
-import { getFeaturedArtists, getCategories, getAllArtists } from "@/lib/queries";
+import { getFeaturedArtists, getCategories } from "@/lib/queries";
 
 export default async function HomePage() {
-  const [featured, categories, artists] = await Promise.all([
+  const [featured, categories] = await Promise.all([
     getFeaturedArtists(),
     getCategories(),
-    getAllArtists(),
   ]);
 
   return (
@@ -69,7 +69,7 @@ export default async function HomePage() {
               VIEW ALL &rarr;
             </Link>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5">
             {featured.map((a) => (
               <ArtistCard key={a.slug} artist={a} />
             ))}
@@ -94,40 +94,31 @@ export default async function HomePage() {
               <Link
                 key={cat.slug}
                 href={`/browse/${cat.slug}`}
-                className={`${cat.bg} rounded-2xl p-6 h-40 flex flex-col justify-end hover:-translate-y-1 transition-transform group relative overflow-hidden`}
+                className="rounded-2xl h-40 flex flex-col justify-end hover:-translate-y-1 transition-transform group relative overflow-hidden"
               >
-                <div className="relative z-10">
-                  <div className="font-display font-bold text-xl group-hover:text-lime transition-colors">
+                {cat.image ? (
+                  <Image
+                    src={cat.image}
+                    alt={cat.label}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 50vw, 25vw"
+                  />
+                ) : (
+                  <div className={`absolute inset-0 ${cat.bg}`} />
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+                <div className="relative z-10 p-6">
+                  <div className="font-display font-bold text-xl text-white group-hover:text-lime transition-colors">
                     {cat.label}
                   </div>
                   <div className="font-mono text-xs text-white/70 tracking-[0.1em]">
-                    {cat.count} ARTISTS
+                    {cat.count} {cat.count === 1 ? "ARTIST" : "ARTISTS"}
                   </div>
                 </div>
               </Link>
             ))}
           </div>
-        </div>
-      </section>
-
-      {/* Stats strip */}
-      <section className="border-t border-dark2 px-6 md:px-12 py-12">
-        <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-          {[
-            [String(artists.length), "Approved artists"],
-            ["2", "Original works"],
-            ["$360", "GMV this month"],
-            ["10%", "Only fee. Ever."],
-          ].map(([num, label]) => (
-            <div key={label}>
-              <div className="font-display font-[800] text-4xl text-lime mb-1">
-                {num}
-              </div>
-              <div className="font-mono text-xs text-midgrey tracking-[0.1em] uppercase">
-                {label}
-              </div>
-            </div>
-          ))}
         </div>
       </section>
 
@@ -143,8 +134,8 @@ export default async function HomePage() {
             Sell something.
           </h2>
           <p className="text-lg text-lightgrey mb-8 max-w-xl mx-auto">
-            Founding Artist Plan: 5% fee for the first 12 months. 3 spots left
-            out of 50.
+            Founding Artist Plan: free subscription for 6 months. 10%
+            commission on sales. No lock-in.
           </p>
           <Link
             href="/join"

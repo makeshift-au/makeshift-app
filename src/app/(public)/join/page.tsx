@@ -27,8 +27,8 @@ export default function JoinPage() {
             </span>
           </div>
           <p className="text-lightgrey mb-4">
-            The first 50 artists pay <strong className="text-white">5% per sale</strong> for
-            their first 12 months (instead of 10%). 3 spots remaining.
+            Founding artists get a <strong className="text-white">free subscription for 6 months</strong>.
+            10% commission on sales — same as everyone. No lock-in.
           </p>
           <div className="w-full bg-dark2 rounded-full h-2">
             <div className="bg-lime rounded-full h-2" style={{ width: "94%" }} />
