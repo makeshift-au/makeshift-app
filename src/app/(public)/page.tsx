@@ -19,7 +19,7 @@ export default async function HomePage() {
           <div className="font-mono text-sm text-lime tracking-[0.15em] mb-4">
             / CURATED MARKETPLACE
           </div>
-          <h1 className="font-display font-[800] text-[clamp(40px,8vw,120px)] leading-[1.0] tracking-[-0.03em] mb-6">
+          <h1 className="font-display font-[800] text-[clamp(28px,7.5vw,120px)] leading-[1.0] tracking-[-0.03em] mb-6">
             Discover
             <br />
             independent
