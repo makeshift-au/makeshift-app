@@ -19,12 +19,12 @@ export default async function HomePage() {
           <div className="font-mono text-sm text-lime tracking-[0.15em] mb-4">
             / CURATED MARKETPLACE
           </div>
-          <h1 className="font-display font-[800] text-[clamp(56px,10vw,120px)] leading-[1.0] tracking-[-0.03em] mb-6">
+          <h1 className="font-display font-[800] text-[clamp(40px,8vw,120px)] leading-[1.0] tracking-[-0.03em] mb-6">
             Discover
             <br />
             independent
             <br />
-            <span className="bg-lime text-black px-3">Australian</span>
+            <span className="bg-lime text-black px-2 sm:px-3 inline-block max-w-full">Australian</span>
             <br />
             artists.
           </h1>
