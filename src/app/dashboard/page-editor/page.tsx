@@ -37,6 +37,12 @@ export default async function DashboardPageEditorPage() {
                 currentUrl={artist.avatar_url ?? undefined}
                 label="Profile photo"
               />
+              <ImageUpload
+                artistId={artist.id}
+                type="banner"
+                currentUrl={artist.banner_url ?? undefined}
+                label="Banner image"
+              />
             </div>
           </div>
           <ProfileEditor

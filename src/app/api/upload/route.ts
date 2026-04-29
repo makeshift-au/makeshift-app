@@ -69,6 +69,11 @@ export async function POST(request: Request) {
         .from("artists")
         .update({ avatar_url: publicUrl, updated_at: new Date().toISOString() })
         .eq("id", artistId);
+    } else if (type === "banner") {
+      await supabase
+        .from("artists")
+        .update({ banner_url: publicUrl, updated_at: new Date().toISOString() })
+        .eq("id", artistId);
     }
 
     return NextResponse.json({ url: publicUrl, path: uploadData.path });

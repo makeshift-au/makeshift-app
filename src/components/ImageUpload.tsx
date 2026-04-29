@@ -11,7 +11,7 @@ export default function ImageUpload({
   onUploaded,
 }: {
   artistId: string;
-  type: "hero" | "avatar" | "listing";
+  type: "hero" | "avatar" | "banner" | "listing";
   currentUrl?: string;
   label: string;
   onUploaded?: (url: string) => void;
@@ -73,7 +73,7 @@ export default function ImageUpload({
     }
   }
 
-  const isHero = type === "hero";
+  const isWide = type === "hero" || type === "banner";
 
   return (
     <div>
@@ -83,7 +83,7 @@ export default function ImageUpload({
 
       {previewUrl ? (
         <div
-          className={`relative ${isHero ? "h-40" : "w-24 h-24"} rounded-xl overflow-hidden mb-3`}
+          className={`relative ${isWide ? "h-40" : "w-24 h-24"} rounded-xl overflow-hidden mb-3`}
         >
           <Image
             src={previewUrl}
@@ -99,7 +99,7 @@ export default function ImageUpload({
         </div>
       ) : (
         <div
-          className={`${isHero ? "h-40" : "w-24 h-24"} bg-dark2 rounded-xl mb-3 flex items-center justify-center`}
+          className={`${isWide ? "h-40" : "w-24 h-24"} bg-dark2 rounded-xl mb-3 flex items-center justify-center`}
         >
           <span className="text-midgrey text-sm">No image</span>
         </div>
