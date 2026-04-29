@@ -34,22 +34,26 @@ export default async function ArtistPage({ params }: Props) {
   const dbListings = artist.id ? await getListingsByArtist(artist.id) : [];
   const mockListings = getMockListings(slug);
 
-  // Normalize both into a common shape for rendering
-  const listings = dbListings.length > 0
-    ? dbListings.map((l: any) => ({
-        id: l.slug ?? l.id,
-        title: l.title,
-        description: l.description ?? "",
-        price: l.price,
-        imageUrl: l.image_urls?.[0] ?? "",
-      }))
-    : mockListings.map((l) => ({
-        id: l.id,
-        title: l.title,
-        description: l.description,
-        price: l.price,
-        imageUrl: l.imageUrl,
-      }));
+  // Normalize both into a common shape, merging DB + mock (mock fills gaps)
+  const dbNormalized = dbListings.map((l: any) => ({
+    id: l.slug ?? l.id,
+    title: l.title,
+    description: l.description ?? "",
+    price: l.price,
+    imageUrl: l.image_urls?.[0] ?? "",
+  }));
+  const mockNormalized = mockListings.map((l) => ({
+    id: l.id,
+    title: l.title,
+    description: l.description,
+    price: l.price,
+    imageUrl: l.imageUrl,
+  }));
+  // Use DB listings if available, then append any mock listings not already present
+  const dbIds = new Set(dbNormalized.map((l) => l.id));
+  const listings = dbNormalized.length > 0
+    ? [...dbNormalized, ...mockNormalized.filter((l) => !dbIds.has(l.id))]
+    : mockNormalized;
 
   return (
     <div>
