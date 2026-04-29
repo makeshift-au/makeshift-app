@@ -122,7 +122,7 @@ export async function sendApplicationNotification({
   city?: string;
   state?: string;
 }) {
-  const ADMIN_EMAIL = process.env.MAKESHIFT_ADMIN_EMAIL || "hello@makeshift-au.com";
+  const ADMIN_EMAIL = process.env.MAKESHIFT_ADMIN_EMAIL || "makeshift.melb@gmail.com";
 
   if (!process.env.RESEND_API_KEY) {
     console.log("[email] RESEND_API_KEY not set — skipping admin notification");
