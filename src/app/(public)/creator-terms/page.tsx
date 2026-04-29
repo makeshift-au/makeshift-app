@@ -40,7 +40,7 @@ export default function CreatortermsPage() {
           ))}
         </div>
         <div className="mt-12 bg-dark1 border-l-[3px] border-lime rounded p-5 text-lightgrey">
-          <strong className="text-lime">Questions?</strong> Email hello@makeshift-au.com
+          <strong className="text-lime">Questions?</strong> Email makeshift.melb@gmail.com
         </div>
       </div>
     </div>

@@ -94,7 +94,7 @@ export default function ContactPage() {
 
         <div className="mt-12 grid grid-cols-1 sm:grid-cols-3 gap-6 text-center">
           {[
-            ["Email", "hello@makeshift-au.com"],
+            ["Email", "makeshift.melb@gmail.com"],
             ["Instagram", "@makeshift.au"],
             ["Location", "Melbourne, VIC"],
           ].map(([label, value]) => (
