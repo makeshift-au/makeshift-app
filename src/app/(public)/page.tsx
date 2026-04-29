@@ -66,9 +66,8 @@ export default async function HomePage() {
             </p>
           </div>
           <div className="mb-6">
-            <h2 className="font-display font-[800] text-[clamp(48px,10vw,120px)] leading-[1.05] tracking-[-0.03em]">
-              Make{" "}
-              <span className="text-lime">Shift.</span>
+            <h2 className="font-display font-[800] text-[clamp(48px,10vw,120px)] leading-[1.05] tracking-[-0.03em] whitespace-nowrap">
+              Make <span className="text-lime">Shift.</span>
             </h2>
             <p className="text-base sm:text-lg text-lightgrey max-w-lg mt-2 mb-8">
               Make a difference. Shift the culture. Go against big business,
