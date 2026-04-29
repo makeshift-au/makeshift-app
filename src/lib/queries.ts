@@ -213,5 +213,6 @@ function mapDBArtist(row: any): Artist {
     gmv30d: 0,
     avatarUrl: row.avatar_url ?? undefined,
     heroUrl: row.hero_url ?? undefined,
+    bannerUrl: row.banner_url ?? undefined,
   };
 }

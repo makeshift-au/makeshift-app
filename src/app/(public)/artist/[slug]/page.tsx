@@ -55,12 +55,12 @@ export default async function ArtistPage({ params }: Props) {
     <div>
       {/* Hero */}
       <div className={`${artist.bg} h-64 md:h-80 relative overflow-hidden`}>
-        {artist.heroUrl && (
+        {(artist.bannerUrl || artist.heroUrl) && (
           <Image
-            src={artist.heroUrl}
+            src={artist.bannerUrl || artist.heroUrl!}
             alt={artist.name}
             fill
-            className="object-cover object-top"
+            className="object-cover object-center"
             priority
           />
         )}

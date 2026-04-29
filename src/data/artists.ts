@@ -16,6 +16,7 @@ export type Artist = {
   gmv30d: number;
   avatarUrl?: string;
   heroUrl?: string;
+  bannerUrl?: string;
 };
 
 export type Listing = {
@@ -62,6 +63,7 @@ export const artists: Artist[] = [
     gmv30d: 3200,
     avatarUrl: "/images/maccs-customs/profile.jpg",
     heroUrl: "/images/maccs-customs/profile.jpg",
+    bannerUrl: "/images/maccs-customs/banner.jpg",
   },
 ];
 
