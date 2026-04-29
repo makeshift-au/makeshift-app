@@ -1,7 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
-import { sendApplicationConfirmation } from "@/lib/email";
+import { sendApplicationConfirmation, sendApplicationNotification } from "@/lib/email";
 
 // ---- Contact Form ----
 export async function submitContact(formData: FormData) {
@@ -117,11 +117,19 @@ export async function submitApplication(formData: FormData) {
 
     if (error) throw error;
 
-    // Send confirmation email (fire-and-forget)
+    // Send emails (fire-and-forget)
     sendApplicationConfirmation({
       applicantEmail: email,
       applicantName: fullName,
-    }).catch((e) => console.error("Application email failed:", e));
+    }).catch((e) => console.error("Application confirmation email failed:", e));
+
+    sendApplicationNotification({
+      applicantName: fullName,
+      applicantEmail: email,
+      disciplines,
+      city: city || undefined,
+      state: state || undefined,
+    }).catch((e) => console.error("Application admin notification failed:", e));
 
     return { success: true };
   } catch (err) {

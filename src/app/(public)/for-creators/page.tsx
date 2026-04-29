@@ -60,7 +60,7 @@ export default function ForCreatorsPage() {
           <h2 className="font-display font-bold text-3xl mb-8">What you get</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {[
-              ["Your own page", "makeshift.au/artist/your-name — a beautiful storefront designed to sell your work."],
+              ["Your own page", "makeshift-au.com/artist/your-name — a beautiful storefront designed to sell your work."],
               ["Commission engine", "Enquiry forms, deposit collection, milestone approvals, all built in."],
               ["Real analytics", "See who's viewing your page, where they come from, and what they click on."],
               ["Community", "Private Slack, quarterly meetups in Melbourne, and a team that picks up the phone."],

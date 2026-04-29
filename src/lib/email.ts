@@ -1,6 +1,6 @@
 import { Resend } from "resend";
 
-const FROM = "Makeshift <hello@makeshift.au>";
+const FROM = "Makeshift <hello@makeshift-au.com>";
 
 function getResend() {
   if (!process.env.RESEND_API_KEY) return null;
@@ -102,6 +102,52 @@ export async function sendOrderNotificationToArtist({
         <p style="color: #CCC;">
           Hi ${artistName}, time to get making! Once your piece is ready, update the order status in your
           <a href="${process.env.NEXT_PUBLIC_APP_URL}/dashboard/orders" style="color: #C8FF00;">dashboard</a>.
+        </p>
+      </div>
+    `,
+  });
+}
+
+// ---- New application notification to admin ----
+export async function sendApplicationNotification({
+  applicantName,
+  applicantEmail,
+  disciplines,
+  city,
+  state,
+}: {
+  applicantName: string;
+  applicantEmail: string;
+  disciplines: string[];
+  city?: string;
+  state?: string;
+}) {
+  const ADMIN_EMAIL = process.env.MAKESHIFT_ADMIN_EMAIL || "hello@makeshift-au.com";
+
+  if (!process.env.RESEND_API_KEY) {
+    console.log("[email] RESEND_API_KEY not set — skipping admin notification");
+    return;
+  }
+
+  const location = [city, state].filter(Boolean).join(", ") || "Not specified";
+
+  await getResend()?.emails.send({
+    from: FROM,
+    to: ADMIN_EMAIL,
+    subject: `New application: ${applicantName}`,
+    html: `
+      <div style="font-family: system-ui, -apple-system, sans-serif; max-width: 560px; margin: 0 auto; padding: 32px 0;">
+        <h1 style="font-size: 28px; font-weight: 800; margin-bottom: 16px;">New artist application</h1>
+
+        <div style="background: #1A1A1A; border: 1px solid #2A2A2A; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
+          <p style="margin: 0 0 8px; font-weight: 700; font-size: 18px;">${applicantName}</p>
+          <p style="margin: 0 0 4px; color: #888;">${applicantEmail}</p>
+          <p style="margin: 0 0 4px; color: #888;">Location: ${location}</p>
+          <p style="margin: 0; color: #C8FF00;">${disciplines.join(", ")}</p>
+        </div>
+
+        <p style="color: #CCC;">
+          <a href="${process.env.NEXT_PUBLIC_APP_URL || "https://makeshift-app.vercel.app"}/admin/applications" style="color: #C8FF00;">Review in admin dashboard →</a>
         </p>
       </div>
     `,

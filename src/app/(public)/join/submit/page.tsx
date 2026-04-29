@@ -35,7 +35,7 @@ export default function JoinSubmitPage() {
               ["Email", "you@email.com"],
               ["Discipline", "Ceramics, Visual Art"],
               ["City", "Melbourne, VIC"],
-              ["URL", "makeshift.au/artist/your-name"],
+              ["URL", "makeshift-au.com/artist/your-name"],
               ["Images", "6 uploaded"],
             ].map(([k, v]) => (
               <div key={k} className="flex justify-between border-b border-dark2 pb-3">

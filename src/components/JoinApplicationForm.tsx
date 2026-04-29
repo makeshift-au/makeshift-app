@@ -314,7 +314,7 @@ export default function JoinApplicationForm() {
               </label>
               <div className="flex items-center bg-dark1 border border-dark2 rounded-xl overflow-hidden">
                 <span className="px-4 py-3.5 text-midgrey text-sm bg-dark2 border-r border-dark2 whitespace-nowrap">
-                  makeshift.au/artist/
+                  makeshift-au.com/artist/
                 </span>
                 <input
                   value={form.slugPreference}
@@ -380,7 +380,7 @@ export default function JoinApplicationForm() {
                   [
                     "URL",
                     form.slugPreference
-                      ? `makeshift.au/artist/${form.slugPreference}`
+                      ? `makeshift-au.com/artist/${form.slugPreference}`
                       : "—",
                   ],
                   ["Price range", form.priceRange],

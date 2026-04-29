@@ -20,7 +20,7 @@ export default function CreatortermsPage() {
         </p>
         <div className="space-y-10 text-lightgrey leading-relaxed">
           {[
-            {t: "Overview", d: "Makeshift is operated by Makeshift Collective Pty Ltd, a Victorian company. These terms apply to everyone who uses makeshift.au."},
+            {t: "Overview", d: "Makeshift is operated by Makeshift Collective Pty Ltd, a Victorian company. These terms apply to everyone who uses makeshift-au.com."},
             {t: "Accounts", d: "Use a real name and email. One person, one account. You must be at least 16 to buy and 18 to sell."},
             {t: "Transactions", d: "When you place an order, you're contracting with the artist, not Makeshift. We facilitate, we don't sell."},
             {t: "Fees", d: "Makeshift takes 10% of each sale plus Stripe processing. No listing fees, no subscription, no hidden charges."},
@@ -40,7 +40,7 @@ export default function CreatortermsPage() {
           ))}
         </div>
         <div className="mt-12 bg-dark1 border-l-[3px] border-lime rounded p-5 text-lightgrey">
-          <strong className="text-lime">Questions?</strong> Email hello@makeshift.au
+          <strong className="text-lime">Questions?</strong> Email hello@makeshift-au.com
         </div>
       </div>
     </div>

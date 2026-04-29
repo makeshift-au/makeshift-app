@@ -6,7 +6,7 @@ export const metadata: Metadata = { title: "FAQ" };
 const faqs = {
   "For buyers": [
     ["How do I know the work is legit?", "Every artist is hand-approved by a real human. We review portfolios, check authenticity, and talk to each artist before they go live. About 70% of applications don't make it."],
-    ["What if my order never arrives?", "Email support@makeshift.au. If it's genuinely lost, we refund you in full."],
+    ["What if my order never arrives?", "Email support@makeshift-au.com. If it's genuinely lost, we refund you in full."],
     ["Can I return something?", "One-of-a-kind work isn't returnable unless damaged. Ready-made items may be returnable within 14 days at the artist's discretion."],
     ["How do commissions work?", "Find an artist, click Enquire, agree a price. 30% deposit up front, balance on completion."],
   ],

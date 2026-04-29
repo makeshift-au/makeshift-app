@@ -31,7 +31,7 @@ export default function JoinYourpagePage() {
           <div>
             <label className="block font-mono text-xs text-midgrey tracking-[0.1em] uppercase mb-2">Choose your URL</label>
             <div className="flex items-center bg-dark1 border border-dark2 rounded-xl overflow-hidden">
-              <span className="px-4 py-3.5 text-midgrey text-sm bg-dark2 border-r border-dark2 whitespace-nowrap">makeshift.au/artist/</span>
+              <span className="px-4 py-3.5 text-midgrey text-sm bg-dark2 border-r border-dark2 whitespace-nowrap">makeshift-au.com/artist/</span>
               <input className="flex-1 bg-transparent px-4 py-3.5 text-white focus:outline-none" placeholder="your-name" />
             </div>
           </div>
