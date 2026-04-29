@@ -154,6 +154,62 @@ export async function sendApplicationNotification({
   });
 }
 
+// ---- Artist approved — welcome email with login link ----
+export async function sendArtistWelcome({
+  artistEmail,
+  artistName,
+  loginUrl,
+}: {
+  artistEmail: string;
+  artistName: string;
+  loginUrl: string;
+}) {
+  if (!process.env.RESEND_API_KEY) {
+    console.log("[email] RESEND_API_KEY not set — skipping welcome email");
+    return;
+  }
+
+  await getResend()?.emails.send({
+    from: FROM,
+    to: artistEmail,
+    subject: `You're in! Welcome to Makeshift, ${artistName}`,
+    html: `
+      <div style="font-family: system-ui, -apple-system, sans-serif; max-width: 560px; margin: 0 auto; padding: 32px 0;">
+        <h1 style="font-size: 28px; font-weight: 800; margin-bottom: 8px;">Welcome to Makeshift.</h1>
+        <p style="color: #C8FF00; font-weight: 700; margin-bottom: 24px;">Your application has been approved!</p>
+
+        <p style="color: #CCC; line-height: 1.6; margin-bottom: 24px;">
+          Hi ${artistName}, we loved your work and you're officially part of the Makeshift community.
+          Your artist page is ready to set up.
+        </p>
+
+        <div style="margin-bottom: 32px;">
+          <a href="${loginUrl}" style="display: inline-block; background: #C8FF00; color: #000; font-weight: 700; padding: 14px 28px; border-radius: 999px; text-decoration: none; font-size: 15px;">
+            Set up your page &rarr;
+          </a>
+        </div>
+
+        <h2 style="font-size: 18px; margin-bottom: 12px;">Getting started</h2>
+        <ol style="color: #CCC; line-height: 1.8; padding-left: 20px;">
+          <li>Click the button above to sign in to your Creator Studio</li>
+          <li>Upload your profile photo, banner, and hero image</li>
+          <li>Add your first listing — title, description, price, and photos</li>
+          <li>Hit "Save" and your page goes live on makeshift-au.com</li>
+        </ol>
+
+        <div style="background: #1A1A1A; border: 1px solid #2A2A2A; border-radius: 12px; padding: 20px; margin: 24px 0;">
+          <p style="margin: 0 0 4px; font-weight: 700; color: #C8FF00;">Founding Artist Plan</p>
+          <p style="margin: 0; color: #CCC;">Free for 6 months. 10% commission on sales. No lock-in.</p>
+        </div>
+
+        <p style="color: #888; font-size: 13px; margin-top: 32px; border-top: 1px solid #2A2A2A; padding-top: 16px;">
+          If you have any questions, just reply to this email or hit us up at makeshift.melb@gmail.com
+        </p>
+      </div>
+    `,
+  });
+}
+
 // ---- Application confirmation ----
 export async function sendApplicationConfirmation({
   applicantEmail,
