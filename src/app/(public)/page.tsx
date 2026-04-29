@@ -51,6 +51,47 @@ export default async function HomePage() {
 
       <Marquee />
 
+      {/* Brand Ethos — Dual Meaning */}
+      <section className="px-6 md:px-12 py-20 md:py-28 border-b border-dark2 relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(200,255,0,0.04)_0%,transparent_60%)] pointer-events-none" />
+        <div className="max-w-5xl mx-auto relative">
+          <div className="grid md:grid-cols-2 gap-12 md:gap-16">
+            {/* Left — Makeshift */}
+            <div>
+              <div className="font-mono text-xs text-lime tracking-[0.15em] mb-4">
+                / MAKESHIFT
+              </div>
+              <h2 className="font-display font-[800] text-[clamp(36px,5vw,64px)] leading-[0.95] tracking-[-0.02em] mb-4">
+                Makeshift.
+              </h2>
+              <p className="text-lg text-lightgrey leading-relaxed">
+                Handmade. Resourceful. Built from scratch. Not mass-produced.
+                Not algorithmic. Real things made by real people.
+              </p>
+            </div>
+            {/* Right — Make Shift */}
+            <div>
+              <div className="font-mono text-xs text-lime tracking-[0.15em] mb-4">
+                / MAKE SHIFT
+              </div>
+              <h2 className="font-display font-[800] text-[clamp(36px,5vw,64px)] leading-[0.95] tracking-[-0.02em] mb-4">
+                Make Shift.
+              </h2>
+              <p className="text-lg text-lightgrey leading-relaxed">
+                Make a difference. Shift the culture. Go against big business,
+                fast fashion, and algorithm-driven platforms.
+              </p>
+            </div>
+          </div>
+          <div className="mt-12 pt-8 border-t border-dark2">
+            <p className="font-display font-bold text-xl md:text-2xl text-white/90 text-center">
+              It&rsquo;s not just a name. It&rsquo;s a statement about what we
+              believe in.
+            </p>
+          </div>
+        </div>
+      </section>
+
       {/* Featured Artists */}
       <section className="px-6 md:px-12 py-16">
         <div className="max-w-7xl mx-auto">
