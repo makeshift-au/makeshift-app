@@ -60,7 +60,7 @@ export default async function ArtistPage({ params }: Props) {
             src={artist.bannerUrl || artist.heroUrl!}
             alt={artist.name}
             fill
-            className="object-cover object-center"
+            className="object-cover object-top"
             priority
           />
         )}
