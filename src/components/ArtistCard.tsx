@@ -15,7 +15,7 @@ export default function ArtistCard({ artist }: { artist: Artist }) {
             src={artist.heroUrl}
             alt={artist.name}
             fill
-            className="object-cover object-center"
+            className="object-cover object-[center_35%]"
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
           />
         )}
