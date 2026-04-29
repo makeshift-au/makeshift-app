@@ -76,8 +76,10 @@ export default async function HomePage() {
           </div>
           <div className="pt-8 border-t border-dark2">
             <p className="font-display font-bold text-xl md:text-2xl text-white/90">
-              It&rsquo;s not just a name. It&rsquo;s a statement about what we
-              believe in.
+              It&rsquo;s not just a name.{" "}
+              <span className="bg-lime text-black px-2 inline-block">
+                It&rsquo;s a statement about what we believe in.
+              </span>
             </p>
           </div>
         </div>
