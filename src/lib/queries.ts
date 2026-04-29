@@ -65,13 +65,13 @@ export async function getFeaturedArtists(): Promise<Artist[]> {
       .eq("featured", true)
       .eq("status", "live")
       .order("name")
-      .limit(6);
+      .limit(8);
 
     if (error || !data || data.length === 0) throw new Error("fallback");
 
-    return realArtistsFirst(data.map(mapDBArtist)).slice(0, 6);
+    return realArtistsFirst(data.map(mapDBArtist)).slice(0, 8);
   } catch {
-    return realArtistsFirst(mockArtists.filter((a) => a.featured)).slice(0, 6);
+    return realArtistsFirst(mockArtists.filter((a) => a.featured)).slice(0, 8);
   }
 }
 

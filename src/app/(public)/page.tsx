@@ -70,39 +70,44 @@ export default async function HomePage() {
             </Link>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5">
-            {featured.map((a) => (
-              <ArtistCard key={a.slug} artist={a} />
+            {featured.map((a, i) => (
+              <div key={a.slug} className={i >= 6 ? "hidden lg:block" : undefined}>
+                <ArtistCard artist={a} />
+              </div>
             ))}
-            {/* Pad to 6 cards with "coming soon" placeholders */}
-            {Array.from({ length: Math.max(0, 6 - featured.length) }).map((_, i) => (
-              <Link
-                key={`coming-${i}`}
-                href="/for-creators"
-                className="bg-dark1 border border-dark2 rounded-2xl overflow-hidden flex flex-col hover:border-lime/40 hover:-translate-y-0.5 transition-all group"
-              >
-                <div className="aspect-[4/3] bg-dark2 flex items-center justify-center">
-                  <div className="text-center px-4">
-                    <div className="font-mono text-xs text-lime tracking-[0.1em] mb-1">
-                      SPOT OPEN
+            {/* Pad to target count with "coming soon" placeholders (8 desktop, 6 mobile) */}
+            {Array.from({ length: Math.max(0, 8 - featured.length) }).map((_, i) => {
+              const totalIndex = featured.length + i;
+              return (
+                <Link
+                  key={`coming-${i}`}
+                  href="/for-creators"
+                  className={`bg-dark1 border border-dark2 rounded-2xl overflow-hidden flex flex-col hover:border-lime/40 hover:-translate-y-0.5 transition-all group${totalIndex >= 6 ? " hidden lg:flex" : ""}`}
+                >
+                  <div className="aspect-[4/3] bg-dark2 flex items-center justify-center">
+                    <div className="text-center px-4">
+                      <div className="font-mono text-xs text-lime tracking-[0.1em] mb-1">
+                        SPOT OPEN
+                      </div>
+                      <div className="font-display font-bold text-lg text-white/60 group-hover:text-lime transition-colors">
+                        Your art here
+                      </div>
                     </div>
-                    <div className="font-display font-bold text-lg text-white/60 group-hover:text-lime transition-colors">
-                      Your art here
+                  </div>
+                  <div className="p-4">
+                    <div className="font-mono text-[10px] text-midgrey tracking-[0.1em] mb-1">
+                      APPLY NOW
+                    </div>
+                    <div className="font-display font-bold text-sm text-white/40">
+                      Founding Artist
+                    </div>
+                    <div className="text-xs text-midgrey mt-1 line-clamp-2">
+                      Free subscription for 6 months
                     </div>
                   </div>
-                </div>
-                <div className="p-4">
-                  <div className="font-mono text-[10px] text-midgrey tracking-[0.1em] mb-1">
-                    APPLY NOW
-                  </div>
-                  <div className="font-display font-bold text-sm text-white/40">
-                    Founding Artist
-                  </div>
-                  <div className="text-xs text-midgrey mt-1 line-clamp-2">
-                    Free subscription for 6 months
-                  </div>
-                </div>
-              </Link>
-            ))}
+                </Link>
+              );
+            })}
           </div>
         </div>
       </section>
