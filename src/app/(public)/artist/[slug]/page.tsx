@@ -30,30 +30,26 @@ export default async function ArtistPage({ params }: Props) {
   const artist = await getArtist(slug);
   if (!artist) notFound();
 
-  // Try Supabase listings first, fall back to mock
-  const dbListings = artist.id ? await getListingsByArtist(artist.id) : [];
+  // Always use mock listings as the source of truth for now
+  // (DB listings can supplement later once artists manage their own)
   const mockListings = getMockListings(slug);
+  const dbListings = artist.id ? await getListingsByArtist(artist.id) : [];
 
-  // Normalize both into a common shape, merging DB + mock (mock fills gaps)
-  const dbNormalized = dbListings.map((l: any) => ({
-    id: l.slug ?? l.id,
-    title: l.title,
-    description: l.description ?? "",
-    price: l.price,
-    imageUrl: l.image_urls?.[0] ?? "",
-  }));
-  const mockNormalized = mockListings.map((l) => ({
-    id: l.id,
-    title: l.title,
-    description: l.description,
-    price: l.price,
-    imageUrl: l.imageUrl,
-  }));
-  // Use DB listings if available, then append any mock listings not already present
-  const dbIds = new Set(dbNormalized.map((l) => l.id));
-  const listings = dbNormalized.length > 0
-    ? [...dbNormalized, ...mockNormalized.filter((l) => !dbIds.has(l.id))]
-    : mockNormalized;
+  const listings = mockListings.length > 0
+    ? mockListings.map((l) => ({
+        id: l.id,
+        title: l.title,
+        description: l.description,
+        price: l.price,
+        imageUrl: l.imageUrl,
+      }))
+    : dbListings.map((l: any) => ({
+        id: l.slug ?? l.id,
+        title: l.title,
+        description: l.description ?? "",
+        price: l.price,
+        imageUrl: l.image_urls?.[0] ?? "",
+      }));
 
   return (
     <div>
