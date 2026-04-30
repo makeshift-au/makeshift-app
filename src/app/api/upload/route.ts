@@ -58,22 +58,28 @@ export async function POST(request: Request) {
 
     const publicUrl = urlData.publicUrl;
 
-    // If this is a hero or avatar upload, update the artist record
-    if (type === "hero") {
-      await supabase
+    // Update the artist record with the new image URL
+    const columnMap: Record<string, string> = {
+      hero: "hero_url",
+      avatar: "avatar_url",
+      banner: "banner_url",
+    };
+
+    const column = columnMap[type];
+    if (column) {
+      const { error: dbErr } = await supabase
         .from("artists")
-        .update({ hero_url: publicUrl, updated_at: new Date().toISOString() })
+        .update({ [column]: publicUrl, updated_at: new Date().toISOString() })
         .eq("id", artistId);
-    } else if (type === "avatar") {
-      await supabase
-        .from("artists")
-        .update({ avatar_url: publicUrl, updated_at: new Date().toISOString() })
-        .eq("id", artistId);
-    } else if (type === "banner") {
-      await supabase
-        .from("artists")
-        .update({ banner_url: publicUrl, updated_at: new Date().toISOString() })
-        .eq("id", artistId);
+
+      if (dbErr) {
+        console.error(`DB update error (${column}):`, dbErr);
+        // Image uploaded OK but DB didn't save — tell the client
+        return NextResponse.json(
+          { url: publicUrl, path: uploadData.path, warning: "Image uploaded but profile not updated" },
+          { status: 200 }
+        );
+      }
     }
 
     return NextResponse.json({ url: publicUrl, path: uploadData.path });
