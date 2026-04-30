@@ -2,17 +2,17 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
+import { createBrowserClient } from "@supabase/ssr";
 
-const navItems = [
-  { href: "/admin", label: "Overview", key: "home" },
-  { href: "/admin/applications", label: "Applications", key: "apps", badgeNew: "14" },
-  { href: "/admin/artists", label: "Artists", key: "artists", badge: "47" },
-  { href: "/admin/featured", label: "Featured", key: "featured", badge: "12" },
-  { href: "/admin/categories", label: "Categories", key: "cats", badge: "8" },
-  { href: "/admin/orders", label: "Orders", key: "orders" },
-  { href: "/admin/flags", label: "Flags", key: "flags", badgeNew: "2" },
-  { href: "/admin/analytics", label: "Analytics", key: "analytics" },
-];
+type Counts = {
+  apps: number;
+  pendingApps: number;
+  artists: number;
+  featured: number;
+  categories: number;
+  orders: number;
+};
 
 export default function AdminLayout({
   children,
@@ -20,6 +20,46 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const [counts, setCounts] = useState<Counts | null>(null);
+
+  useEffect(() => {
+    const supabase = createBrowserClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    );
+
+    async function loadCounts() {
+      const [apps, artists, featured, cats, orders] = await Promise.all([
+        supabase.from("applications").select("id, status", { count: "exact" }),
+        supabase.from("artists").select("id", { count: "exact" }),
+        supabase.from("artists").select("id", { count: "exact" }).eq("featured", true),
+        supabase.from("categories").select("id", { count: "exact" }),
+        supabase.from("orders").select("id", { count: "exact" }),
+      ]);
+
+      const pendingApps = apps.data?.filter((a: any) => a.status === "pending" || a.status === "in_review").length ?? 0;
+
+      setCounts({
+        apps: apps.count ?? 0,
+        pendingApps,
+        artists: artists.count ?? 0,
+        featured: featured.count ?? 0,
+        categories: cats.count ?? 0,
+        orders: orders.count ?? 0,
+      });
+    }
+
+    loadCounts();
+  }, [pathname]); // re-fetch when navigating between admin pages
+
+  const navItems = [
+    { href: "/admin", label: "Overview", key: "home" },
+    { href: "/admin/applications", label: "Applications", key: "apps", badge: counts ? String(counts.apps) : "…", badgeNew: counts && counts.pendingApps > 0 ? String(counts.pendingApps) : undefined },
+    { href: "/admin/artists", label: "Artists", key: "artists", badge: counts ? String(counts.artists) : "…" },
+    { href: "/admin/featured", label: "Featured", key: "featured", badge: counts ? String(counts.featured) : "…" },
+    { href: "/admin/categories", label: "Categories", key: "cats", badge: counts ? String(counts.categories) : "…" },
+    { href: "/admin/orders", label: "Orders", key: "orders", badge: counts && counts.orders > 0 ? String(counts.orders) : undefined },
+  ];
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-[260px_1fr] min-h-screen">
@@ -61,16 +101,15 @@ export default function AdminLayout({
                 }`}
               >
                 {item.label}
-                {item.badge && (
-                  <span className={`ml-auto font-mono text-[10px] font-bold ${isActive ? "text-black" : "text-midgrey"}`}>
-                    {item.badge}
-                  </span>
-                )}
-                {item.badgeNew && (
+                {item.badgeNew ? (
                   <span className="ml-auto bg-pink text-white font-mono text-[9px] px-1.5 py-0.5 rounded font-bold">
                     {item.badgeNew}
                   </span>
-                )}
+                ) : item.badge ? (
+                  <span className={`ml-auto font-mono text-[10px] font-bold ${isActive ? "text-black" : "text-midgrey"}`}>
+                    {item.badge}
+                  </span>
+                ) : null}
               </Link>
             );
           })}
