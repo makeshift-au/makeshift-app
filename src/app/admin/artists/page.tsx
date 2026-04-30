@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import type { Metadata } from "next";
+import ArtistRosterActions from "@/components/ArtistRosterActions";
 
 export const metadata: Metadata = { title: "Admin — The Roster" };
 
@@ -14,6 +15,7 @@ export default async function AdminArtistsPage() {
 
   const allArtists = artists ?? [];
   const liveCount = allArtists.filter((a: any) => a.status === "live").length;
+  const onboardingCount = allArtists.filter((a: any) => a.status === "onboarding").length;
   const featuredCount = allArtists.filter((a: any) => a.featured).length;
 
   return (
@@ -26,7 +28,7 @@ export default async function AdminArtistsPage() {
       </h1>
       <p className="text-lg text-lightgrey mb-8 max-w-xl">
         {allArtists.length > 0
-          ? `${allArtists.length} artists total · ${liveCount} live · ${featuredCount} featured`
+          ? `${allArtists.length} artists · ${liveCount} live · ${onboardingCount} onboarding · ${featuredCount} featured`
           : "Manage all approved artists. Boost, pause, or edit."}
       </p>
 
@@ -47,7 +49,7 @@ export default async function AdminArtistsPage() {
                 <th className="text-left font-mono text-[10px] text-midgrey tracking-[0.15em] uppercase p-4 font-normal">Location</th>
                 <th className="text-left font-mono text-[10px] text-midgrey tracking-[0.15em] uppercase p-4 font-normal">Fee</th>
                 <th className="text-left font-mono text-[10px] text-midgrey tracking-[0.15em] uppercase p-4 font-normal">Status</th>
-                <th className="text-right font-mono text-[10px] text-midgrey tracking-[0.15em] uppercase p-4 font-normal"></th>
+                <th className="text-right font-mono text-[10px] text-midgrey tracking-[0.15em] uppercase p-4 font-normal">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -79,12 +81,7 @@ export default async function AdminArtistsPage() {
                     </span>
                   </td>
                   <td className="p-4 text-right">
-                    <Link
-                      href={`/artist/${a.slug}`}
-                      className="border border-dark2 text-white px-3 py-1.5 rounded-full text-xs hover:border-lime hover:text-lime transition-colors"
-                    >
-                      VIEW
-                    </Link>
+                    <ArtistRosterActions artistId={a.id} slug={a.slug} status={a.status} />
                   </td>
                 </tr>
               ))}

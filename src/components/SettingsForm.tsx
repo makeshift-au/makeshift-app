@@ -14,25 +14,24 @@ export default function SettingsForm({
   const [pausing, setPausing] = useState(false);
   const [status, setStatus] = useState(artistStatus);
 
-  async function handlePause() {
+  async function handleStatusChange(newStatus: string) {
     if (!artistId) return;
-    const newStatus = status === "paused" ? "live" : "paused";
-    const confirm = window.confirm(
-      newStatus === "paused"
-        ? "Pause your page? You'll be hidden from browse, but open orders still ship."
+
+    const messages: Record<string, string> = {
+      live: status === "onboarding"
+        ? "Go live? Your page will be visible on browse and search."
         : "Unpause your page? You'll be visible again on browse.",
-    );
-    if (!confirm) return;
+      paused: "Pause your page? You'll be hidden from browse, but open orders still ship.",
+    };
+
+    if (!window.confirm(messages[newStatus] ?? "Change status?")) return;
 
     setPausing(true);
     try {
       const res = await fetch("/api/artist/update", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          artistId,
-          status: newStatus,
-        }),
+        body: JSON.stringify({ artistId, status: newStatus }),
       });
       if (res.ok) {
         setStatus(newStatus);
@@ -51,7 +50,7 @@ export default function SettingsForm({
         <div className="flex justify-between items-center text-sm">
           <div>
             <div className="font-medium">{email}</div>
-            <div className="text-midgrey">Magic link login</div>
+            <div className="text-midgrey">Email + password login</div>
           </div>
         </div>
       </div>
@@ -62,20 +61,35 @@ export default function SettingsForm({
           <div>
             <div className="font-medium text-sm">
               Your page is{" "}
-              <span className={status === "live" ? "text-lime" : "text-orange"}>
+              <span className={
+                status === "live" ? "text-lime" :
+                status === "onboarding" ? "text-orange" :
+                "text-midgrey"
+              }>
                 {status}
               </span>
             </div>
             <div className="text-xs text-midgrey mt-1">
               {status === "live"
                 ? "Visible on browse and search"
-                : "Hidden from browse. Open orders still ship."}
+                : status === "onboarding"
+                  ? "Set up your images and listings, then go live when ready."
+                  : "Hidden from browse. Open orders still ship."}
             </div>
           </div>
+          {status === "onboarding" && artistId && (
+            <button
+              onClick={() => handleStatusChange("live")}
+              disabled={pausing}
+              className="bg-lime text-black px-5 py-2.5 rounded-full text-sm font-bold hover:bg-lime/80 transition-colors disabled:opacity-50"
+            >
+              {pausing ? "..." : "Go Live"}
+            </button>
+          )}
         </div>
       </div>
 
-      {artistId && (
+      {artistId && status !== "onboarding" && (
         <div className="bg-dark1 border border-pink rounded-2xl p-6">
           <h2 className="font-display font-bold text-xl text-pink mb-4">
             Danger zone
@@ -92,7 +106,7 @@ export default function SettingsForm({
               </div>
             </div>
             <button
-              onClick={handlePause}
+              onClick={() => handleStatusChange(status === "paused" ? "live" : "paused")}
               disabled={pausing}
               className={`border px-4 py-2 rounded-full text-xs transition-colors ${
                 status === "paused"

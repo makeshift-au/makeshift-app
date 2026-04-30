@@ -88,8 +88,8 @@ export default function AdminLayout({
           <div className="font-mono text-[11px] text-midgrey tracking-[0.1em]">
             MAKESHIFT · ADMIN
           </div>
-          <span className="bg-pink text-white px-3.5 py-1 rounded-full font-mono text-[10px] font-bold tracking-[0.15em]">
-            STAGING
+          <span className="bg-lime text-black px-3.5 py-1 rounded-full font-mono text-[10px] font-bold tracking-[0.15em]">
+            LIVE
           </span>
         </div>
         {children}
