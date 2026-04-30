@@ -140,14 +140,14 @@ export async function sendApplicationNotification({
         <h1 style="font-size: 28px; font-weight: 800; margin-bottom: 16px;">New artist application</h1>
 
         <div style="background: #1A1A1A; border: 1px solid #2A2A2A; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
-          <p style="margin: 0 0 8px; font-weight: 700; font-size: 18px;">${applicantName}</p>
+          <p style="margin: 0 0 8px; font-weight: 700; font-size: 18px; color: #FFF;">${applicantName}</p>
           <p style="margin: 0 0 4px; color: #888;">${applicantEmail}</p>
           <p style="margin: 0 0 4px; color: #888;">Location: ${location}</p>
           <p style="margin: 0; color: #C8FF00;">${disciplines.join(", ")}</p>
         </div>
 
-        <p style="color: #CCC;">
-          <a href="${process.env.NEXT_PUBLIC_APP_URL || "https://makeshift-app.vercel.app"}/admin/applications" style="color: #C8FF00;">Review in admin dashboard →</a>
+        <p style="color: #333;">
+          <a href="${process.env.NEXT_PUBLIC_APP_URL || "https://makeshift-au.com"}/admin/applications" style="color: #C8FF00;">Review in admin dashboard →</a>
         </p>
       </div>
     `,
@@ -231,19 +231,19 @@ export async function sendApplicationConfirmation({
       <div style="font-family: system-ui, -apple-system, sans-serif; max-width: 560px; margin: 0 auto; padding: 32px 0;">
         <h1 style="font-size: 28px; font-weight: 800; margin-bottom: 16px;">We've got your application.</h1>
 
-        <p style="color: #CCC; line-height: 1.6; margin-bottom: 24px;">
+        <p style="color: #333; line-height: 1.6; margin-bottom: 24px;">
           Hi ${applicantName}, thanks for applying to sell on Makeshift.
           We review every application by hand — you'll hear from us within 5-7 business days.
         </p>
 
         <h2 style="font-size: 18px; margin-bottom: 12px;">What happens next</h2>
-        <ol style="color: #CCC; line-height: 1.8; padding-left: 20px;">
+        <ol style="color: #333; line-height: 1.8; padding-left: 20px;">
           <li>Our team reviews your portfolio (1-3 days)</li>
           <li>We email you with our decision (3-5 days)</li>
           <li>If approved: set up Stripe, upload listings, go live</li>
         </ol>
 
-        <p style="color: #888; font-size: 13px; margin-top: 32px; border-top: 1px solid #2A2A2A; padding-top: 16px;">
+        <p style="color: #666; font-size: 13px; margin-top: 32px; border-top: 1px solid #DDD; padding-top: 16px;">
           In the meantime, follow @makeshift.au on Instagram and get your best photos ready.
         </p>
       </div>
