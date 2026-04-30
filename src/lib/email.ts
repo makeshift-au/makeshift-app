@@ -154,20 +154,24 @@ export async function sendApplicationNotification({
   });
 }
 
-// ---- Artist approved — welcome email with login link ----
+// ---- Artist approved — welcome email with login credentials ----
 export async function sendArtistWelcome({
   artistEmail,
   artistName,
   loginUrl,
+  tempPassword,
 }: {
   artistEmail: string;
   artistName: string;
   loginUrl: string;
+  tempPassword: string;
 }) {
   if (!process.env.RESEND_API_KEY) {
     console.log("[email] RESEND_API_KEY not set — skipping welcome email");
     return;
   }
+
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://makeshift-au.com";
 
   await getResend()?.emails.send({
     from: FROM,
@@ -183,15 +187,23 @@ export async function sendArtistWelcome({
           Your artist page is ready to set up.
         </p>
 
+        <div style="background: #1A1A1A; border: 1px solid #2A2A2A; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
+          <p style="margin: 0 0 12px; font-weight: 700; font-size: 16px; color: #FFF;">Your login details</p>
+          <p style="margin: 0 0 4px; color: #888; font-size: 13px;">Email</p>
+          <p style="margin: 0 0 12px; color: #FFF; font-family: monospace;">${artistEmail}</p>
+          <p style="margin: 0 0 4px; color: #888; font-size: 13px;">Temporary password</p>
+          <p style="margin: 0; color: #C8FF00; font-family: monospace; font-size: 16px;">${tempPassword}</p>
+        </div>
+
         <div style="margin-bottom: 32px;">
-          <a href="${loginUrl}" style="display: inline-block; background: #C8FF00; color: #000; font-weight: 700; padding: 14px 28px; border-radius: 999px; text-decoration: none; font-size: 15px;">
-            Set up your page &rarr;
+          <a href="${appUrl}/login" style="display: inline-block; background: #C8FF00; color: #000; font-weight: 700; padding: 14px 28px; border-radius: 999px; text-decoration: none; font-size: 15px;">
+            Sign in to your Creator Studio &rarr;
           </a>
         </div>
 
         <h2 style="font-size: 18px; margin-bottom: 12px;">Getting started</h2>
         <ol style="color: #CCC; line-height: 1.8; padding-left: 20px;">
-          <li>Click the button above to sign in to your Creator Studio</li>
+          <li>Sign in with the credentials above</li>
           <li>Upload your profile photo, banner, and hero image</li>
           <li>Add your first listing — title, description, price, and photos</li>
           <li>Hit "Save" and your page goes live on makeshift-au.com</li>

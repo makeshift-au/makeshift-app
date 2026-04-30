@@ -50,13 +50,23 @@ export async function approveApplication(applicationId: string) {
 
   let userId: string;
 
+  // Generate a temporary password for the artist
+  const tempPassword =
+    app.full_name.split(" ")[0] +
+    "-" +
+    Math.random().toString(36).slice(2, 8) +
+    "!";
+
   if (existingUser) {
     userId = existingUser.id;
+    // Update existing user's password
+    await admin.auth.admin.updateUserById(userId, { password: tempPassword });
   } else {
-    // Create a new auth user (no password — they'll use magic link)
+    // Create a new auth user with a temporary password
     const { data: newUser, error: authErr } =
       await admin.auth.admin.createUser({
         email: app.email,
+        password: tempPassword,
         email_confirm: true, // auto-confirm the email
         user_metadata: {
           full_name: app.full_name,
@@ -138,6 +148,7 @@ export async function approveApplication(applicationId: string) {
       artistEmail: app.email,
       artistName: app.full_name,
       loginUrl,
+      tempPassword,
     });
   } catch (emailErr) {
     console.error("Welcome email error:", emailErr);
