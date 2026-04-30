@@ -146,6 +146,90 @@ export async function POST(request: Request) {
         }
         break;
       }
+
+      // ---- Subscription lifecycle events ----
+
+      case "customer.subscription.updated": {
+        const subscription = event.data.object as Stripe.Subscription;
+        const customerId =
+          typeof subscription.customer === "string"
+            ? subscription.customer
+            : subscription.customer.id;
+
+        // Sync subscription status to artists table
+        await supabase
+          .from("artists")
+          .update({ subscription_status: subscription.status })
+          .eq("stripe_customer_id", customerId);
+        break;
+      }
+
+      case "customer.subscription.deleted": {
+        const subscription = event.data.object as Stripe.Subscription;
+        const customerId =
+          typeof subscription.customer === "string"
+            ? subscription.customer
+            : subscription.customer.id;
+
+        // Mark subscription as cancelled; optionally pause artist page
+        await supabase
+          .from("artists")
+          .update({
+            subscription_status: "canceled",
+          })
+          .eq("stripe_customer_id", customerId);
+        break;
+      }
+
+      case "invoice.paid": {
+        const invoice = event.data.object as Stripe.Invoice;
+        const customerId =
+          typeof invoice.customer === "string"
+            ? invoice.customer
+            : (invoice.customer as Stripe.Customer)?.id;
+
+        if (customerId) {
+          // Invoice paid — ensure artist subscription status is up to date
+          // If they were past_due, they're now back to active
+          const { data: artistRecord } = await supabase
+            .from("artists")
+            .select("subscription_status")
+            .eq("stripe_customer_id", customerId)
+            .single();
+
+          if (
+            artistRecord?.subscription_status === "past_due" ||
+            artistRecord?.subscription_status === "incomplete"
+          ) {
+            await supabase
+              .from("artists")
+              .update({ subscription_status: "active" })
+              .eq("stripe_customer_id", customerId);
+          }
+        }
+        break;
+      }
+
+      case "invoice.payment_failed": {
+        const invoice = event.data.object as Stripe.Invoice;
+        const customerId =
+          typeof invoice.customer === "string"
+            ? invoice.customer
+            : (invoice.customer as Stripe.Customer)?.id;
+
+        if (customerId) {
+          // Flag the artist — their payment failed
+          await supabase
+            .from("artists")
+            .update({ subscription_status: "past_due" })
+            .eq("stripe_customer_id", customerId);
+
+          console.warn(
+            `Payment failed for customer ${customerId}, invoice ${invoice.id}`
+          );
+        }
+        break;
+      }
     }
   } catch (err) {
     console.error("Webhook handler error:", err);

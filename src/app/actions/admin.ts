@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendArtistWelcome } from "@/lib/email";
+import { createCustomer, createSubscription } from "@/lib/billing";
 
 // ---- Fetch Applications ----
 export async function getApplications(status?: string) {
@@ -125,7 +126,43 @@ export async function approveApplication(applicationId: string) {
     };
   }
 
-  // --- Step 4: Generate magic link and send welcome email ---
+  // --- Step 4: Create Stripe Customer & Subscription ---
+  try {
+    // Fetch the newly created artist to get its ID
+    const { data: newArtist } = await admin
+      .from("artists")
+      .select("id, founding_artist")
+      .eq("slug", slug)
+      .single();
+
+    if (newArtist) {
+      const stripeCustomerId = await createCustomer({
+        email: app.email,
+        name: app.full_name,
+        artistId: newArtist.id,
+      });
+
+      const subscription = await createSubscription({
+        customerId: stripeCustomerId,
+        isFoundingArtist: newArtist.founding_artist ?? true,
+      });
+
+      // Save Stripe details to the artist record
+      await admin
+        .from("artists")
+        .update({
+          stripe_customer_id: stripeCustomerId,
+          subscription_status: subscription.status, // "trialing" for founding, "incomplete" otherwise
+          subscription_started_at: new Date().toISOString(),
+        })
+        .eq("id", newArtist.id);
+    }
+  } catch (billingErr) {
+    console.error("Stripe billing setup error:", billingErr);
+    // Non-fatal — artist is created, billing can be set up later
+  }
+
+  // --- Step 5: Generate magic link and send welcome email ---
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://makeshift-au.com";
 
   const { data: linkData, error: linkErr } =

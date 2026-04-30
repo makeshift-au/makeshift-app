@@ -1,50 +1,127 @@
 import type { Metadata } from "next";
+import { createClient } from "@/lib/supabase/server";
+import { redirect } from "next/navigation";
+import { getInvoices, createBillingPortalSession } from "@/lib/billing";
+import BillingClient from "@/components/BillingClient";
 
 export const metadata: Metadata = { title: "Billing" };
 
-export default function DashboardBillingPage() {
+export default async function DashboardBillingPage() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) redirect("/login");
+
+  // Get artist record for the logged-in user
+  const { data: artist } = await supabase
+    .from("artists")
+    .select(
+      "id, name, founding_artist, fee_rate, stripe_customer_id, subscription_status, subscription_started_at, stripe_account_id, stripe_onboarded"
+    )
+    .eq("profile_id", user.id)
+    .single();
+
+  if (!artist) {
+    return (
+      <div className="text-center py-20">
+        <h1 className="font-display font-[800] text-3xl mb-4">No artist profile found</h1>
+        <p className="text-lightgrey">
+          Your billing will appear here once your artist profile is set up.
+        </p>
+      </div>
+    );
+  }
+
+  // Fetch usage counts for current month
+  const now = new Date();
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+
+  const { count: enquiryCount } = await supabase
+    .from("usage_events")
+    .select("id", { count: "exact", head: true })
+    .eq("artist_id", artist.id)
+    .eq("event_type", "enquiry")
+    .gte("created_at", monthStart);
+
+  const { count: clickCount } = await supabase
+    .from("usage_events")
+    .select("id", { count: "exact", head: true })
+    .eq("artist_id", artist.id)
+    .eq("event_type", "music_click")
+    .gte("created_at", monthStart);
+
+  // Fetch invoice history from Stripe (if customer exists)
+  let invoices: {
+    id: string;
+    date: string;
+    amount: string;
+    status: string;
+    url: string | null;
+  }[] = [];
+
+  if (artist.stripe_customer_id) {
+    try {
+      const stripeInvoices = await getInvoices(artist.stripe_customer_id, 12);
+      invoices = stripeInvoices.map((inv) => ({
+        id: inv.id,
+        date: new Date((inv.created ?? 0) * 1000).toLocaleDateString("en-AU", {
+          day: "numeric",
+          month: "short",
+          year: "numeric",
+        }),
+        amount: `$${((inv.amount_due ?? 0) / 100).toFixed(2)}`,
+        status: inv.status ?? "unknown",
+        url: inv.hosted_invoice_url ?? null,
+      }));
+    } catch (err) {
+      console.error("Fetch invoices error:", err);
+    }
+  }
+
+  // Calculate trial end date for founding artists
+  let trialEndsAt: string | null = null;
+  if (artist.founding_artist && artist.subscription_started_at) {
+    const trialEnd = new Date(artist.subscription_started_at);
+    trialEnd.setDate(trialEnd.getDate() + 180);
+    trialEndsAt = trialEnd.toLocaleDateString("en-AU", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+  }
+
+  // Subscription status display
+  const subStatusMap: Record<string, { label: string; color: string }> = {
+    active: { label: "ACTIVE", color: "text-lime bg-lime/15" },
+    trialing: { label: "TRIAL", color: "text-lime bg-lime/15" },
+    past_due: { label: "PAST DUE", color: "text-red-400 bg-red-400/15" },
+    canceled: { label: "CANCELLED", color: "text-midgrey bg-midgrey/15" },
+    paused: { label: "PAUSED", color: "text-yellow-400 bg-yellow-400/15" },
+    incomplete: { label: "SETUP NEEDED", color: "text-yellow-400 bg-yellow-400/15" },
+    none: { label: "NO SUBSCRIPTION", color: "text-midgrey bg-midgrey/15" },
+  };
+
+  const subStatus =
+    subStatusMap[artist.subscription_status ?? "none"] ?? subStatusMap.none;
+
   return (
-    <>
-      <div className="font-mono text-xs text-lime tracking-[0.1em] mb-2">
-        / DASHBOARD / BILLING
-      </div>
-      <h1 className="font-display font-[800] text-[48px] leading-[0.95] tracking-[-0.02em] mb-3">
-        Billing.
-      </h1>
-      <p className="text-lg text-lightgrey mb-8 max-w-xl">
-        Your plan, Stripe payouts, and transaction history.
-      </p>
-
-      <div className="bg-dark1 border-2 border-lime rounded-2xl p-6 mb-6">
-        <div className="flex justify-between items-start mb-2">
-          <h2 className="font-display font-bold text-xl">Founding Artist Plan</h2>
-          <span className="font-mono text-xs text-lime tracking-[0.1em] bg-lime/15 px-3 py-1 rounded-full">ACTIVE</span>
-        </div>
-        <p className="text-lightgrey text-sm mb-4">5% per sale until April 2027. Then 10% standard rate.</p>
-        <div className="font-mono text-xs text-midgrey tracking-[0.1em]">
-          STRIPE PAYOUT ACCOUNT &middot; COMMONWEALTH BANK ****4721
-        </div>
-      </div>
-
-      <div className="bg-dark1 border border-dark2 rounded-2xl p-6">
-        <h2 className="font-display font-bold text-xl mb-4">Payout history</h2>
-        <div className="space-y-3">
-          {[
-            ["10 Apr 2026", "$840.00", "$42.00", "$798.00"],
-            ["03 Apr 2026", "$620.00", "$31.00", "$589.00"],
-            ["27 Mar 2026", "$480.00", "$24.00", "$456.00"],
-            ["20 Mar 2026", "$320.00", "$16.00", "$304.00"],
-          ].map(([date, gross, fee, net]) => (
-            <div key={date} className="flex justify-between items-center border-b border-dark2 pb-3 last:border-b-0 text-sm">
-              <span className="font-mono text-xs text-midgrey">{date}</span>
-              <span>{gross}</span>
-              <span className="text-midgrey">{fee}</span>
-              <span className="font-display font-bold text-lime">{net}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-    
-    </>
+    <BillingClient
+      artist={{
+        id: artist.id,
+        name: artist.name,
+        foundingArtist: artist.founding_artist ?? false,
+        feeRate: artist.fee_rate ?? 10,
+        stripeCustomerId: artist.stripe_customer_id,
+        subscriptionStatus: artist.subscription_status ?? "none",
+        stripeOnboarded: artist.stripe_onboarded ?? false,
+      }}
+      subStatus={subStatus}
+      trialEndsAt={trialEndsAt}
+      enquiryCount={enquiryCount ?? 0}
+      clickCount={clickCount ?? 0}
+      invoices={invoices}
+    />
   );
 }
