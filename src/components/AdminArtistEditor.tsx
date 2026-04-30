@@ -373,6 +373,54 @@ export default function AdminArtistEditor({ artist }: { artist: Artist }) {
         </div>
       </div>
 
+      {/* Danger zone */}
+      <div className="bg-dark1 border border-pink rounded-2xl p-6">
+        <h2 className="font-display font-bold text-xl text-pink mb-4">Danger zone</h2>
+        <div className="flex justify-between items-center">
+          <div>
+            <div className="font-medium text-sm">Delete this artist</div>
+            <div className="text-xs text-midgrey mt-1">
+              Permanently removes the artist, their listings, and optionally their login account. This cannot be undone.
+            </div>
+          </div>
+          <button
+            onClick={async () => {
+              const confirmText = window.prompt(
+                `Type "${artist.slug}" to confirm deletion:`
+              );
+              if (confirmText !== artist.slug) return;
+
+              const deleteUser = window.confirm(
+                "Also delete their login account? (Cancel = keep the account, just remove the artist profile)"
+              );
+
+              setSaving(true);
+              try {
+                const res = await fetch("/api/admin/artists", {
+                  method: "DELETE",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ artistId: artist.id, deleteUser }),
+                });
+                if (res.ok) {
+                  router.push("/admin/artists");
+                } else {
+                  const data = await res.json();
+                  setError(data.error || "Failed to delete");
+                }
+              } catch {
+                setError("Failed to delete");
+              } finally {
+                setSaving(false);
+              }
+            }}
+            disabled={saving}
+            className="border border-pink text-pink px-5 py-2.5 rounded-full text-sm font-bold hover:bg-pink hover:text-white transition-colors disabled:opacity-50 flex-shrink-0"
+          >
+            Delete artist
+          </button>
+        </div>
+      </div>
+
       {/* Save bar */}
       <div className="flex items-center gap-4 sticky bottom-0 bg-black/80 backdrop-blur-sm border-t border-dark2 -mx-10 px-10 py-4">
         <button
