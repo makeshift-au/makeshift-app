@@ -19,6 +19,8 @@ type FormState = {
   slugPreference: string;
   instagram: string;
   website: string;
+  spotifyUrl: string;
+  appleMusicUrl: string;
   whyMakeshift: string;
   agreeTerms: boolean;
 };
@@ -38,6 +40,8 @@ const INITIAL: FormState = {
   slugPreference: "",
   instagram: "",
   website: "",
+  spotifyUrl: "",
+  appleMusicUrl: "",
   whyMakeshift: "",
   agreeTerms: false,
 };
@@ -103,6 +107,8 @@ export default function JoinApplicationForm() {
     fd.set("slug_preference", form.slugPreference);
     fd.set("instagram", form.instagram);
     fd.set("website", form.website);
+    if (form.spotifyUrl) fd.set("spotify_url", form.spotifyUrl);
+    if (form.appleMusicUrl) fd.set("apple_music_url", form.appleMusicUrl);
     fd.set("why_makeshift", form.whyMakeshift);
 
     const result = await submitApplication(fd);
@@ -346,6 +352,38 @@ export default function JoinApplicationForm() {
                 placeholder="https://"
               />
             </div>
+            {form.disciplines.includes("Music") && (
+              <div className="bg-dark1 border border-lime/20 rounded-2xl p-5 space-y-4">
+                <div className="font-mono text-xs text-lime tracking-[0.1em] uppercase">
+                  Streaming links
+                </div>
+                <p className="text-sm text-midgrey">
+                  We&apos;ll add these to your artist page so fans can find your music.
+                </p>
+                <div>
+                  <label className="block font-mono text-xs text-midgrey tracking-[0.1em] uppercase mb-2">
+                    Spotify URL
+                  </label>
+                  <input
+                    value={form.spotifyUrl}
+                    onChange={(e) => set("spotifyUrl", e.target.value)}
+                    className={inputCls}
+                    placeholder="https://open.spotify.com/artist/..."
+                  />
+                </div>
+                <div>
+                  <label className="block font-mono text-xs text-midgrey tracking-[0.1em] uppercase mb-2">
+                    Apple Music URL
+                  </label>
+                  <input
+                    value={form.appleMusicUrl}
+                    onChange={(e) => set("appleMusicUrl", e.target.value)}
+                    className={inputCls}
+                    placeholder="https://music.apple.com/artist/..."
+                  />
+                </div>
+              </div>
+            )}
             <div>
               <label className="block font-mono text-xs text-midgrey tracking-[0.1em] uppercase mb-2">
                 Why Makeshift? (optional)

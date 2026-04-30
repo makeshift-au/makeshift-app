@@ -214,5 +214,7 @@ function mapDBArtist(row: any): Artist {
     avatarUrl: row.avatar_url ?? undefined,
     heroUrl: row.hero_url ?? undefined,
     bannerUrl: row.banner_url ?? mockArtists.find((a) => a.slug === row.slug)?.bannerUrl ?? undefined,
+    spotifyUrl: row.spotify_url ?? undefined,
+    appleMusicUrl: row.apple_music_url ?? undefined,
   };
 }

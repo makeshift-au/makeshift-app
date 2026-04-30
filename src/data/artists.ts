@@ -17,6 +17,8 @@ export type Artist = {
   avatarUrl?: string;
   heroUrl?: string;
   bannerUrl?: string;
+  spotifyUrl?: string;
+  appleMusicUrl?: string;
 };
 
 export type Listing = {

@@ -29,7 +29,7 @@ export async function POST(request: Request) {
     }
 
     // Only allow updating safe fields
-    const allowedFields = ["name", "tagline", "bio", "location", "instagram", "website", "commissions", "price_range", "status"];
+    const allowedFields = ["name", "tagline", "bio", "location", "instagram", "website", "spotify_url", "apple_music_url", "commissions", "price_range", "status"];
     const safeUpdates: Record<string, unknown> = { updated_at: new Date().toISOString() };
     for (const key of allowedFields) {
       if (key in updates && updates[key] !== undefined) {

@@ -107,11 +107,13 @@ export async function approveApplication(applicationId: string) {
     bio: app.work_description ?? "",
     instagram: app.instagram ?? "",
     website: app.website ?? "",
+    spotify_url: app.spotify_url ?? null,
+    apple_music_url: app.apple_music_url ?? null,
     commissions: true,
     price_range: app.price_range ?? "",
     status: "onboarding",
     founding_artist: true,
-    fee_rate: 5.0,
+    fee_rate: 10.0,
     profile_id: userId, // Link artist to auth user
   });
 

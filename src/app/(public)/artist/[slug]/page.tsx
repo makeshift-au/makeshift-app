@@ -181,12 +181,47 @@ export default async function ArtistPage({ params }: Props) {
               <div className="space-y-3 text-sm border-t border-dark2 pt-4">
                 <div className="flex justify-between">
                   <span className="text-midgrey">Location</span>
-                  <span>{artist.location}, VIC</span>
+                  <span>{artist.location}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-midgrey">Instagram</span>
-                  <span className="text-lime">{artist.instagram}</span>
-                </div>
+                {artist.instagram && (
+                  <div className="flex justify-between">
+                    <span className="text-midgrey">Instagram</span>
+                    <a
+                      href={`https://instagram.com/${artist.instagram.replace("@", "")}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-lime hover:underline"
+                    >
+                      {artist.instagram}
+                    </a>
+                  </div>
+                )}
+                {artist.spotifyUrl && (
+                  <div className="flex justify-between">
+                    <span className="text-midgrey">Spotify</span>
+                    <a
+                      href={`/api/track?artist=${artist.id}&type=spotify&url=${encodeURIComponent(artist.spotifyUrl)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[#1DB954] hover:underline"
+                    >
+                      Listen &rarr;
+                    </a>
+                  </div>
+                )}
+                {artist.appleMusicUrl && (
+                  <div className="flex justify-between">
+                    <span className="text-midgrey">Apple Music</span>
+                    <a
+                      href={`/api/track?artist=${artist.id}&type=apple_music&url=${encodeURIComponent(artist.appleMusicUrl)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[#FC3C44] hover:underline"
+                    >
+                      Listen &rarr;
+                    </a>
+                  </div>
+                )}
                 <div className="flex justify-between">
                   <span className="text-midgrey">Listings</span>
                   <span>{artist.listings}</span>

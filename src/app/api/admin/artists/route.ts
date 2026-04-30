@@ -38,7 +38,8 @@ export async function PATCH(request: Request) {
     // Admin can update these fields
     const allowedFields = [
       "name", "tagline", "bio", "location", "discipline",
-      "instagram", "website", "commissions", "price_range",
+      "instagram", "website", "spotify_url", "apple_music_url",
+      "commissions", "price_range",
       "status", "featured", "fee_rate", "founding_artist",
     ];
 

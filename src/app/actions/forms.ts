@@ -68,6 +68,14 @@ export async function submitEnquiry(formData: FormData) {
     });
 
     if (error) throw error;
+
+    // Log usage event for billing
+    await supabase.from("usage_events").insert({
+      artist_id: artist.id,
+      event_type: "enquiry",
+      metadata: { enquirer_email: email },
+    }).then(null, (e: unknown) => console.error("Usage event log failed:", e));
+
     return { success: true };
   } catch (err) {
     console.error("Enquiry form error:", err);
@@ -90,6 +98,8 @@ export async function submitApplication(formData: FormData) {
   const slugPreference = formData.get("slug_preference") as string;
   const instagram = formData.get("instagram") as string;
   const website = formData.get("website") as string;
+  const spotifyUrl = formData.get("spotify_url") as string;
+  const appleMusicUrl = formData.get("apple_music_url") as string;
   const whyMakeshift = formData.get("why_makeshift") as string;
 
   if (!email || !fullName || disciplines.length === 0) {
@@ -112,6 +122,8 @@ export async function submitApplication(formData: FormData) {
       slug_preference: slugPreference || null,
       instagram: instagram || null,
       website: website || null,
+      spotify_url: spotifyUrl || null,
+      apple_music_url: appleMusicUrl || null,
       why_makeshift: whyMakeshift || null,
     });
 
