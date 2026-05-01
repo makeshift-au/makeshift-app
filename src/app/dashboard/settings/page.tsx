@@ -29,6 +29,7 @@ export default async function DashboardSettingsPage() {
         email={user?.email ?? ""}
         artistId={artist?.id}
         artistStatus={artist?.status ?? "live"}
+        stripeCustomerId={artist?.stripe_customer_id ?? null}
       />
     </>
   );

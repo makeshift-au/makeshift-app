@@ -1,21 +1,88 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function SettingsForm({
   email,
   artistId,
   artistStatus,
+  stripeCustomerId,
 }: {
   email: string;
   artistId?: string;
   artistStatus: string;
+  stripeCustomerId?: string | null;
 }) {
   const [pausing, setPausing] = useState(false);
   const [status, setStatus] = useState(artistStatus);
+  const [billingLoading, setBillingLoading] = useState(false);
+  const [billingChecking, setBillingChecking] = useState(true);
+  const [hasPaymentMethod, setHasPaymentMethod] = useState(false);
+  const [cardInfo, setCardInfo] = useState<{ brand: string; last4: string } | null>(null);
+
+  // Check if payment method exists on mount
+  useEffect(() => {
+    if (!artistId) {
+      setBillingChecking(false);
+      return;
+    }
+
+    fetch("/api/billing/setup")
+      .then((res) => res.json())
+      .then((data) => {
+        setHasPaymentMethod(data.hasPaymentMethod);
+        if (data.cardBrand && data.cardLast4) {
+          setCardInfo({ brand: data.cardBrand, last4: data.cardLast4 });
+        }
+      })
+      .catch(() => {})
+      .finally(() => setBillingChecking(false));
+  }, [artistId]);
+
+  // Check URL params for billing success
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("billing") === "success") {
+      // Re-check payment method after successful setup
+      fetch("/api/billing/setup")
+        .then((res) => res.json())
+        .then((data) => {
+          setHasPaymentMethod(data.hasPaymentMethod);
+          if (data.cardBrand && data.cardLast4) {
+            setCardInfo({ brand: data.cardBrand, last4: data.cardLast4 });
+          }
+        });
+      // Clean the URL
+      window.history.replaceState({}, "", "/dashboard/settings");
+    }
+  }, []);
+
+  async function handleBillingSetup() {
+    setBillingLoading(true);
+    try {
+      const res = await fetch("/api/billing/setup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      }
+    } catch {
+      alert("Failed to start billing setup");
+    } finally {
+      setBillingLoading(false);
+    }
+  }
 
   async function handleStatusChange(newStatus: string) {
     if (!artistId) return;
+
+    // Block Go Live if no payment method
+    if (newStatus === "live" && !hasPaymentMethod) {
+      alert("Please set up your payment method before going live.");
+      return;
+    }
 
     const messages: Record<string, string> = {
       live: status === "onboarding"
@@ -43,6 +110,8 @@ export default function SettingsForm({
     }
   }
 
+  const isOnboarding = status === "onboarding";
+
   return (
     <>
       <div className="bg-dark1 border border-dark2 rounded-2xl p-6 mb-6">
@@ -54,6 +123,49 @@ export default function SettingsForm({
           </div>
         </div>
       </div>
+
+      {/* Billing Setup — shows during onboarding or if no payment method */}
+      {artistId && (isOnboarding || !hasPaymentMethod) && (
+        <div className={`bg-dark1 border-2 ${hasPaymentMethod ? "border-lime" : "border-orange"} rounded-2xl p-6 mb-6`}>
+          <div className="flex items-start gap-3 mb-3">
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0 ${
+              hasPaymentMethod ? "bg-lime text-black" : "bg-orange text-black"
+            }`}>
+              {hasPaymentMethod ? "✓" : "!"}
+            </div>
+            <div>
+              <h2 className="font-display font-bold text-xl">
+                {hasPaymentMethod ? "Payment method saved" : "Set up billing"}
+              </h2>
+              <p className="text-sm text-lightgrey mt-1">
+                {hasPaymentMethod
+                  ? cardInfo
+                    ? `${cardInfo.brand.charAt(0).toUpperCase() + cardInfo.brand.slice(1)} ending in ${cardInfo.last4}`
+                    : "Card on file"
+                  : "Add a payment method to cover enquiry fees, streaming clicks, and your future subscription. You won't be charged until usage occurs."}
+              </p>
+            </div>
+          </div>
+          {!hasPaymentMethod && (
+            <button
+              onClick={handleBillingSetup}
+              disabled={billingLoading || billingChecking}
+              className="bg-lime text-black px-6 py-3 rounded-full text-sm font-bold hover:bg-lime/80 transition-colors disabled:opacity-50 ml-11"
+            >
+              {billingLoading ? "Redirecting to Stripe..." : billingChecking ? "Checking..." : "Add payment method"}
+            </button>
+          )}
+          {hasPaymentMethod && (
+            <button
+              onClick={handleBillingSetup}
+              disabled={billingLoading}
+              className="border border-dark2 text-midgrey px-4 py-2 rounded-full text-xs hover:border-lime hover:text-lime transition-colors disabled:opacity-50 ml-11"
+            >
+              {billingLoading ? "..." : "Update card"}
+            </button>
+          )}
+        </div>
+      )}
 
       <div className="bg-dark1 border border-dark2 rounded-2xl p-6 mb-6">
         <h2 className="font-display font-bold text-xl mb-4">Page status</h2>
@@ -77,19 +189,24 @@ export default function SettingsForm({
                   : "Hidden from browse. Open orders still ship."}
             </div>
           </div>
-          {status === "onboarding" && artistId && (
-            <button
-              onClick={() => handleStatusChange("live")}
-              disabled={pausing}
-              className="bg-lime text-black px-5 py-2.5 rounded-full text-sm font-bold hover:bg-lime/80 transition-colors disabled:opacity-50"
-            >
-              {pausing ? "..." : "Go Live"}
-            </button>
+          {isOnboarding && artistId && (
+            <div className="flex items-center gap-3">
+              {!hasPaymentMethod && !billingChecking && (
+                <span className="text-xs text-orange">Payment method required</span>
+              )}
+              <button
+                onClick={() => handleStatusChange("live")}
+                disabled={pausing || !hasPaymentMethod || billingChecking}
+                className="bg-lime text-black px-5 py-2.5 rounded-full text-sm font-bold hover:bg-lime/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {pausing ? "..." : "Go Live"}
+              </button>
+            </div>
           )}
         </div>
       </div>
 
-      {artistId && status !== "onboarding" && (
+      {artistId && !isOnboarding && (
         <div className="bg-dark1 border border-pink rounded-2xl p-6">
           <h2 className="font-display font-bold text-xl text-pink mb-4">
             Danger zone
