@@ -34,7 +34,7 @@ function EnquireForm() {
       <div className="px-6 md:px-12 py-16">
         <div className="max-w-2xl mx-auto text-center">
           <div className="font-mono text-sm text-lime tracking-[0.15em] mb-3">/ ENQUIRY SENT</div>
-          <h1 className="font-display font-[800] text-5xl leading-[0.92] tracking-[-0.02em] mb-4">
+          <h1 className="font-display font-[800] text-[clamp(32px,7vw,48px)] leading-[0.92] tracking-[-0.02em] mb-4">
             Nice one.
           </h1>
           <p className="text-lg text-lightgrey mb-8">
@@ -51,7 +51,7 @@ function EnquireForm() {
         <div className="font-mono text-sm text-lime tracking-[0.15em] mb-3">
           / ENQUIRE / COMMISSION
         </div>
-        <h1 className="font-display font-[800] text-5xl leading-[0.92] tracking-[-0.02em] mb-4">
+        <h1 className="font-display font-[800] text-[clamp(32px,7vw,48px)] leading-[0.92] tracking-[-0.02em] mb-4">
           Let&rsquo;s make
           <br />
           something.

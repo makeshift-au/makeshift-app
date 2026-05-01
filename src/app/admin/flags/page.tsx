@@ -8,7 +8,7 @@ export default function AdminFlagsPage() {
       <div className="font-mono text-xs text-pink tracking-[0.1em] mb-2">
         / ADMIN / FLAGS
       </div>
-      <h1 className="font-display font-[800] text-[46px] leading-[0.95] tracking-[-0.02em] mb-3">
+      <h1 className="font-display font-[800] text-[clamp(32px,6vw,46px)] leading-[0.95] tracking-[-0.02em] mb-3">
         Flags.
       </h1>
       <p className="text-lg text-lightgrey mb-8 max-w-xl">

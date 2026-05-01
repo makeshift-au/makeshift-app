@@ -23,7 +23,7 @@ export default function ContactPage() {
       <div className="px-6 md:px-12 py-16">
         <div className="max-w-2xl mx-auto text-center">
           <div className="font-mono text-sm text-lime tracking-[0.15em] mb-3">/ CONTACT</div>
-          <h1 className="font-display font-[800] text-5xl leading-[0.92] tracking-[-0.02em] mb-4">
+          <h1 className="font-display font-[800] text-3xl md:text-5xl leading-[0.92] tracking-[-0.02em] mb-4">
             Message sent.
           </h1>
           <p className="text-lg text-lightgrey mb-8">

@@ -67,7 +67,7 @@ export default async function AdminOverview() {
   return (
     <>
       <div className="font-mono text-xs text-pink tracking-[0.1em] mb-2">/ ADMIN / OVERVIEW</div>
-      <h1 className="font-display font-[800] text-[46px] leading-[0.95] tracking-[-0.02em] mb-3">Control room.</h1>
+      <h1 className="font-display font-[800] text-[clamp(32px,6vw,46px)] leading-[0.95] tracking-[-0.02em] mb-3">Control room.</h1>
       <p className="text-lg text-lightgrey mb-8 max-w-xl">Everything that matters, on one screen.</p>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">

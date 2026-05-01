@@ -23,7 +23,7 @@ export default async function AdminArtistsPage() {
       <div className="font-mono text-xs text-pink tracking-[0.1em] mb-2">
         / ADMIN / THE ROSTER
       </div>
-      <h1 className="font-display font-[800] text-[46px] leading-[0.95] tracking-[-0.02em] mb-3">
+      <h1 className="font-display font-[800] text-[clamp(32px,6vw,46px)] leading-[0.95] tracking-[-0.02em] mb-3">
         The Roster.
       </h1>
       <p className="text-lg text-lightgrey mb-8 max-w-xl">
@@ -40,8 +40,8 @@ export default async function AdminArtistsPage() {
           </p>
         </div>
       ) : (
-        <div className="bg-dark1 border border-dark2 rounded-2xl overflow-hidden">
-          <table className="w-full text-sm">
+        <div className="bg-dark1 border border-dark2 rounded-2xl overflow-hidden overflow-x-auto">
+          <table className="w-full text-sm min-w-[700px]">
             <thead>
               <tr className="border-b border-dark2">
                 <th className="text-left font-mono text-[10px] text-midgrey tracking-[0.15em] uppercase p-4 font-normal">Artist</th>

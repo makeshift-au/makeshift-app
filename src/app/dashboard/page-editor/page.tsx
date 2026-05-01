@@ -13,7 +13,7 @@ export default async function DashboardPageEditorPage() {
       <div className="font-mono text-xs text-lime tracking-[0.1em] mb-2">
         / DASHBOARD / MY PAGE
       </div>
-      <h1 className="font-display font-[800] text-[48px] leading-[0.95] tracking-[-0.02em] mb-3">
+      <h1 className="font-display font-[800] text-[clamp(32px,6vw,48px)] leading-[0.95] tracking-[-0.02em] mb-3">
         My Page.
       </h1>
       <p className="text-lg text-lightgrey mb-8 max-w-xl">

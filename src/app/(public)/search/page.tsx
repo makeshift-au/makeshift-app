@@ -13,7 +13,7 @@ export default async function SearchPage() {
         <div className="font-mono text-sm text-lime tracking-[0.15em] mb-3">
           / SEARCH
         </div>
-        <h1 className="font-display font-[800] text-5xl leading-[0.92] tracking-[-0.02em] mb-8">
+        <h1 className="font-display font-[800] text-[clamp(32px,7vw,48px)] leading-[0.92] tracking-[-0.02em] mb-8">
           Find something.
         </h1>
         <SearchView artists={artists} />

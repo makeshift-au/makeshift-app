@@ -28,7 +28,7 @@ export default async function AdminArtistEditPage({
       <div className="font-mono text-xs text-pink tracking-[0.1em] mb-2">
         / ADMIN / THE ROSTER / EDIT
       </div>
-      <h1 className="font-display font-[800] text-[46px] leading-[0.95] tracking-[-0.02em] mb-3">
+      <h1 className="font-display font-[800] text-[clamp(32px,6vw,46px)] leading-[0.95] tracking-[-0.02em] mb-3">
         {artist.name}
       </h1>
       <p className="text-sm text-midgrey mb-8">

@@ -10,7 +10,7 @@ export default function JoinSubmitPage() {
         <div className="font-mono text-sm text-lime tracking-[0.15em] mb-3">
           / JOIN / STEP 4 OF 4
         </div>
-        <h1 className="font-display font-[800] text-5xl leading-[0.92] tracking-[-0.02em] mb-8">
+        <h1 className="font-display font-[800] text-3xl md:text-5xl leading-[0.92] tracking-[-0.02em] mb-8">
           Review & Submit.
         </h1>
 

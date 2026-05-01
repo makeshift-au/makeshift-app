@@ -83,7 +83,7 @@ export default async function WorkPage({ params }: Props) {
     <div className="px-6 md:px-12 py-16">
       <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12">
         {/* Image */}
-        <div className={`${listing.artistBg} rounded-2xl h-[500px] relative overflow-hidden`}>
+        <div className={`${listing.artistBg} rounded-2xl h-80 md:h-[500px] relative overflow-hidden`}>
           {listing.imageUrl && (
             <Image
               src={listing.imageUrl}
@@ -100,14 +100,14 @@ export default async function WorkPage({ params }: Props) {
           <div className="font-mono text-sm text-lime tracking-[0.15em] mb-3">
             / WORK
           </div>
-          <h1 className="font-display font-[800] text-5xl leading-[0.92] tracking-[-0.02em] mb-2">
+          <h1 className="font-display font-[800] text-[clamp(32px,7vw,48px)] leading-[0.92] tracking-[-0.02em] mb-2">
             {listing.title}
           </h1>
           <p className="font-mono text-sm text-midgrey tracking-[0.05em] mb-6">
             BY {listing.artistName.toUpperCase()} &middot; HAND-PAINTED SHIRT
           </p>
 
-          <div className="font-display font-[800] text-4xl text-lime mb-6">
+          <div className="font-display font-[800] text-3xl md:text-4xl text-lime mb-6">
             ${listing.price}
           </div>
 
