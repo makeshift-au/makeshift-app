@@ -23,7 +23,7 @@ export async function GET() {
 
     const { data: artist, error: artistErr } = await supabase
       .from("artists")
-      .select("id, stripe_account_id, name")
+      .select("id, stripe_account_id, name, slug")
       .eq("profile_id", user.id)
       .single();
 
@@ -39,13 +39,20 @@ export async function GET() {
         type: "express",
         country: "AU",
         email: user.email,
+        business_type: "individual",
         capabilities: {
           card_payments: { requested: true },
           transfers: { requested: true },
         },
+        individual: {
+          first_name: artist.name.split(" ")[0],
+          last_name: artist.name.split(" ").slice(1).join(" ") || undefined,
+          email: user.email,
+        },
         business_profile: {
           name: artist.name,
-          product_description: "Independent artist marketplace",
+          product_description: "Selling original artwork and creative work through Makeshift marketplace",
+          url: `https://makeshift-au.com/artist/${artist.slug}`,
         },
       });
 
