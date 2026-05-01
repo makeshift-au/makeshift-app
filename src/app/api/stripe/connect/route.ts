@@ -52,11 +52,17 @@ export async function POST() {
         .eq("id", artist.id);
     }
 
+    // Check if the request includes a returnTo param
+    // (so we can redirect back to settings during onboarding)
+    const returnTo = "settings";
+
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://makeshift-au.com";
+
     // Create onboarding link
     const accountLink = await stripe.accountLinks.create({
       account: accountId,
-      refresh_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/billing?refresh=true`,
-      return_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/billing?setup=complete`,
+      refresh_url: `${baseUrl}/dashboard/settings?connect=refresh`,
+      return_url: `${baseUrl}/dashboard/settings?connect=complete`,
       type: "account_onboarding",
     });
 

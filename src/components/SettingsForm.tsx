@@ -15,18 +15,28 @@ export default function SettingsForm({
 }) {
   const [pausing, setPausing] = useState(false);
   const [status, setStatus] = useState(artistStatus);
+
+  // Payment method state
   const [billingLoading, setBillingLoading] = useState(false);
   const [billingChecking, setBillingChecking] = useState(true);
   const [hasPaymentMethod, setHasPaymentMethod] = useState(false);
   const [cardInfo, setCardInfo] = useState<{ brand: string; last4: string } | null>(null);
 
-  // Check if payment method exists on mount
+  // Payout account (Stripe Connect) state
+  const [connectLoading, setConnectLoading] = useState(false);
+  const [connectChecking, setConnectChecking] = useState(true);
+  const [isConnected, setIsConnected] = useState(false);
+  const [isOnboarded, setIsOnboarded] = useState(false);
+
+  // Check payment method on mount
   useEffect(() => {
     if (!artistId) {
       setBillingChecking(false);
+      setConnectChecking(false);
       return;
     }
 
+    // Check payment method
     fetch("/api/billing/setup")
       .then((res) => res.json())
       .then((data) => {
@@ -37,13 +47,23 @@ export default function SettingsForm({
       })
       .catch(() => {})
       .finally(() => setBillingChecking(false));
+
+    // Check Stripe Connect status
+    fetch("/api/stripe/connect")
+      .then((res) => res.json())
+      .then((data) => {
+        setIsConnected(data.connected ?? false);
+        setIsOnboarded(data.onboarded ?? false);
+      })
+      .catch(() => {})
+      .finally(() => setConnectChecking(false));
   }, [artistId]);
 
-  // Check URL params for billing success
+  // Check URL params for billing/connect success
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
+
     if (params.get("billing") === "success") {
-      // Re-check payment method after successful setup
       fetch("/api/billing/setup")
         .then((res) => res.json())
         .then((data) => {
@@ -52,7 +72,16 @@ export default function SettingsForm({
             setCardInfo({ brand: data.cardBrand, last4: data.cardLast4 });
           }
         });
-      // Clean the URL
+      window.history.replaceState({}, "", "/dashboard/settings");
+    }
+
+    if (params.get("connect") === "complete") {
+      fetch("/api/stripe/connect")
+        .then((res) => res.json())
+        .then((data) => {
+          setIsConnected(data.connected ?? false);
+          setIsOnboarded(data.onboarded ?? false);
+        });
       window.history.replaceState({}, "", "/dashboard/settings");
     }
   }, []);
@@ -75,12 +104,30 @@ export default function SettingsForm({
     }
   }
 
+  async function handleConnectSetup() {
+    setConnectLoading(true);
+    try {
+      const res = await fetch("/api/stripe/connect", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      }
+    } catch {
+      alert("Failed to start payout setup");
+    } finally {
+      setConnectLoading(false);
+    }
+  }
+
   async function handleStatusChange(newStatus: string) {
     if (!artistId) return;
 
-    // Block Go Live if no payment method
-    if (newStatus === "live" && !hasPaymentMethod) {
-      alert("Please set up your payment method before going live.");
+    // Block Go Live if requirements not met
+    if (newStatus === "live" && !canGoLive) {
+      alert("Please complete all setup steps before going live.");
       return;
     }
 
@@ -111,6 +158,13 @@ export default function SettingsForm({
   }
 
   const isOnboarding = status === "onboarding";
+  const isChecking = billingChecking || connectChecking;
+  const canGoLive = hasPaymentMethod && isOnboarded;
+
+  // Build missing steps list for the Go Live button area
+  const missingSteps: string[] = [];
+  if (!hasPaymentMethod) missingSteps.push("payment method");
+  if (!isOnboarded) missingSteps.push("payout account");
 
   return (
     <>
@@ -124,60 +178,88 @@ export default function SettingsForm({
         </div>
       </div>
 
-      {/* Billing Setup — shows during onboarding or if no payment method */}
-      {artistId && (isOnboarding || !hasPaymentMethod) && (
-        <div className={`bg-dark1 border-2 ${hasPaymentMethod ? "border-lime" : "border-orange"} rounded-2xl p-6 mb-6`}>
-          <div className="flex items-start gap-3 mb-3">
-            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0 ${
-              hasPaymentMethod ? "bg-lime text-black" : "bg-orange text-black"
-            }`}>
-              {hasPaymentMethod ? "✓" : "!"}
-            </div>
-            <div>
-              <h2 className="font-display font-bold text-xl">
-                {hasPaymentMethod ? "Payment method saved" : "Set up billing"}
-              </h2>
-              <p className="text-sm text-lightgrey mt-1">
-                {hasPaymentMethod
-                  ? cardInfo
-                    ? `${cardInfo.brand.charAt(0).toUpperCase() + cardInfo.brand.slice(1)} ending in ${cardInfo.last4}`
-                    : "Card on file"
-                  : "Add a payment method to cover enquiry fees, streaming clicks, and your future subscription. You won't be charged until usage occurs."}
-              </p>
-            </div>
+      {/* Onboarding checklist header — only during onboarding */}
+      {isOnboarding && artistId && (
+        <div className="mb-4">
+          <div className="font-mono text-xs text-lime tracking-[0.1em] mb-1">
+            / SETUP CHECKLIST
           </div>
-          {!hasPaymentMethod && (
-            <button
-              onClick={handleBillingSetup}
-              disabled={billingLoading || billingChecking}
-              className="bg-lime text-black px-6 py-3 rounded-full text-sm font-bold hover:bg-lime/80 transition-colors disabled:opacity-50 ml-11"
-            >
-              {billingLoading ? "Redirecting to Stripe..." : billingChecking ? "Checking..." : "Add payment method"}
-            </button>
-          )}
-          {hasPaymentMethod && (
-            <button
-              onClick={handleBillingSetup}
-              disabled={billingLoading}
-              className="border border-dark2 text-midgrey px-4 py-2 rounded-full text-xs hover:border-lime hover:text-lime transition-colors disabled:opacity-50 ml-11"
-            >
-              {billingLoading ? "..." : "Update card"}
-            </button>
-          )}
+          <p className="text-sm text-lightgrey">
+            Complete these steps to go live on Makeshift.
+          </p>
         </div>
       )}
 
+      {/* Step 1: Payment Method (for charges) */}
+      {artistId && (isOnboarding || !hasPaymentMethod) && (
+        <OnboardingCard
+          step={1}
+          complete={hasPaymentMethod}
+          title={hasPaymentMethod ? "Payment method saved" : "Add payment method"}
+          description={
+            hasPaymentMethod
+              ? cardInfo
+                ? `${cardInfo.brand.charAt(0).toUpperCase() + cardInfo.brand.slice(1)} ending in ${cardInfo.last4}`
+                : "Card on file"
+              : "Required for enquiry fees ($5 each), streaming click fees ($0.50 each), and your future subscription."
+          }
+          buttonLabel={hasPaymentMethod ? "Update card" : "Add payment method"}
+          buttonLoading={billingLoading}
+          buttonChecking={billingChecking}
+          onAction={handleBillingSetup}
+          buttonVariant={hasPaymentMethod ? "secondary" : "primary"}
+        />
+      )}
+
+      {/* Step 2: Payout Account (for receiving money) */}
+      {artistId && (isOnboarding || !isOnboarded) && (
+        <OnboardingCard
+          step={2}
+          complete={isOnboarded}
+          title={
+            isOnboarded
+              ? "Payout account connected"
+              : isConnected
+                ? "Finish payout setup"
+                : "Connect payout account"
+          }
+          description={
+            isOnboarded
+              ? "Your bank account is connected. You'll receive payouts when customers purchase your work."
+              : isConnected
+                ? "You started setting up your payout account but haven't finished. Complete the process to receive payments."
+                : "Connect your bank account via Stripe so you can receive payments when someone buys your work."
+          }
+          buttonLabel={
+            isOnboarded
+              ? "Manage payouts"
+              : isConnected
+                ? "Continue setup"
+                : "Connect bank account"
+          }
+          buttonLoading={connectLoading}
+          buttonChecking={connectChecking}
+          onAction={handleConnectSetup}
+          buttonVariant={isOnboarded ? "secondary" : "primary"}
+        />
+      )}
+
+      {/* Page Status */}
       <div className="bg-dark1 border border-dark2 rounded-2xl p-6 mb-6">
         <h2 className="font-display font-bold text-xl mb-4">Page status</h2>
         <div className="flex justify-between items-center">
           <div>
             <div className="font-medium text-sm">
               Your page is{" "}
-              <span className={
-                status === "live" ? "text-lime" :
-                status === "onboarding" ? "text-orange" :
-                "text-midgrey"
-              }>
+              <span
+                className={
+                  status === "live"
+                    ? "text-lime"
+                    : status === "onboarding"
+                      ? "text-orange"
+                      : "text-midgrey"
+                }
+              >
                 {status}
               </span>
             </div>
@@ -185,19 +267,21 @@ export default function SettingsForm({
               {status === "live"
                 ? "Visible on browse and search"
                 : status === "onboarding"
-                  ? "Set up your images and listings, then go live when ready."
+                  ? "Set up your images, listings, and billing — then go live when ready."
                   : "Hidden from browse. Open orders still ship."}
             </div>
           </div>
           {isOnboarding && artistId && (
             <div className="flex items-center gap-3">
-              {!hasPaymentMethod && !billingChecking && (
-                <span className="text-xs text-orange">Payment method required</span>
+              {!isChecking && !canGoLive && (
+                <span className="text-xs text-orange text-right max-w-[180px]">
+                  Need {missingSteps.join(" + ")}
+                </span>
               )}
               <button
                 onClick={() => handleStatusChange("live")}
-                disabled={pausing || !hasPaymentMethod || billingChecking}
-                className="bg-lime text-black px-5 py-2.5 rounded-full text-sm font-bold hover:bg-lime/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={pausing || !canGoLive || isChecking}
+                className="bg-lime text-black px-5 py-2.5 rounded-full text-sm font-bold hover:bg-lime/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
               >
                 {pausing ? "..." : "Go Live"}
               </button>
@@ -206,6 +290,7 @@ export default function SettingsForm({
         </div>
       </div>
 
+      {/* Danger Zone — only for live/paused artists */}
       {artistId && !isOnboarding && (
         <div className="bg-dark1 border border-pink rounded-2xl p-6">
           <h2 className="font-display font-bold text-xl text-pink mb-4">
@@ -223,7 +308,9 @@ export default function SettingsForm({
               </div>
             </div>
             <button
-              onClick={() => handleStatusChange(status === "paused" ? "live" : "paused")}
+              onClick={() =>
+                handleStatusChange(status === "paused" ? "live" : "paused")
+              }
               disabled={pausing}
               className={`border px-4 py-2 rounded-full text-xs transition-colors ${
                 status === "paused"
@@ -241,5 +328,65 @@ export default function SettingsForm({
         </div>
       )}
     </>
+  );
+}
+
+// ---- Reusable Onboarding Step Card ----
+function OnboardingCard({
+  step,
+  complete,
+  title,
+  description,
+  buttonLabel,
+  buttonLoading,
+  buttonChecking,
+  onAction,
+  buttonVariant = "primary",
+}: {
+  step: number;
+  complete: boolean;
+  title: string;
+  description: string;
+  buttonLabel: string;
+  buttonLoading: boolean;
+  buttonChecking?: boolean;
+  onAction: () => void;
+  buttonVariant?: "primary" | "secondary";
+}) {
+  return (
+    <div
+      className={`bg-dark1 border-2 ${
+        complete ? "border-lime" : "border-orange"
+      } rounded-2xl p-6 mb-6`}
+    >
+      <div className="flex items-start gap-3 mb-3">
+        <div
+          className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0 ${
+            complete ? "bg-lime text-black" : "bg-orange text-black"
+          }`}
+        >
+          {complete ? "✓" : step}
+        </div>
+        <div>
+          <h2 className="font-display font-bold text-xl">{title}</h2>
+          <p className="text-sm text-lightgrey mt-1">{description}</p>
+        </div>
+      </div>
+      <button
+        onClick={onAction}
+        disabled={buttonLoading || buttonChecking}
+        className={`ml-11 px-6 py-2.5 rounded-full text-sm font-bold transition-colors disabled:opacity-50 ${
+          buttonVariant === "primary"
+            ? "bg-lime text-black hover:bg-lime/80"
+            : "border border-dark2 text-midgrey hover:border-lime hover:text-lime text-xs px-4 py-2"
+        }`}
+      >
+        {buttonLoading
+          ? "Redirecting..."
+          : buttonChecking
+            ? "Checking..."
+            : buttonLabel}
+      </button>
+    </div>
   );
 }
