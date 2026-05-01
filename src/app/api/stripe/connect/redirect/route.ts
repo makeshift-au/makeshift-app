@@ -51,6 +51,7 @@ export async function GET() {
         },
         business_profile: {
           name: artist.name,
+          mcc: "5971", // Art dealers and galleries
           product_description: "Selling original artwork and creative work through Makeshift marketplace",
           url: `https://makeshift-au.com/artist/${artist.slug}`,
         },
