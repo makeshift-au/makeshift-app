@@ -17,13 +17,11 @@ export default function SettingsForm({
   const [status, setStatus] = useState(artistStatus);
 
   // Payment method state
-  const [billingLoading, setBillingLoading] = useState(false);
   const [billingChecking, setBillingChecking] = useState(true);
   const [hasPaymentMethod, setHasPaymentMethod] = useState(false);
   const [cardInfo, setCardInfo] = useState<{ brand: string; last4: string } | null>(null);
 
   // Payout account (Stripe Connect) state
-  const [connectLoading, setConnectLoading] = useState(false);
   const [connectChecking, setConnectChecking] = useState(true);
   const [isConnected, setIsConnected] = useState(false);
   const [isOnboarded, setIsOnboarded] = useState(false);
@@ -85,42 +83,6 @@ export default function SettingsForm({
       window.history.replaceState({}, "", "/dashboard/settings");
     }
   }, []);
-
-  async function handleBillingSetup() {
-    setBillingLoading(true);
-    try {
-      const res = await fetch("/api/billing/setup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-      });
-      const data = await res.json();
-      if (data.url) {
-        window.location.href = data.url;
-      }
-    } catch {
-      alert("Failed to start billing setup");
-    } finally {
-      setBillingLoading(false);
-    }
-  }
-
-  async function handleConnectSetup() {
-    setConnectLoading(true);
-    try {
-      const res = await fetch("/api/stripe/connect", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-      });
-      const data = await res.json();
-      if (data.url) {
-        window.location.href = data.url;
-      }
-    } catch {
-      alert("Failed to start payout setup");
-    } finally {
-      setConnectLoading(false);
-    }
-  }
 
   async function handleStatusChange(newStatus: string) {
     if (!artistId) return;
@@ -204,9 +166,8 @@ export default function SettingsForm({
               : "Required for enquiry fees ($5 each), streaming click fees ($0.50 each), and your future subscription."
           }
           buttonLabel={hasPaymentMethod ? "Update card" : "Add payment method"}
-          buttonLoading={billingLoading}
           buttonChecking={billingChecking}
-          onAction={handleBillingSetup}
+          href="/api/billing/setup/redirect"
           buttonVariant={hasPaymentMethod ? "secondary" : "primary"}
         />
       )}
@@ -237,9 +198,8 @@ export default function SettingsForm({
                 ? "Continue setup"
                 : "Connect bank account"
           }
-          buttonLoading={connectLoading}
           buttonChecking={connectChecking}
-          onAction={handleConnectSetup}
+          href="/api/stripe/connect/redirect"
           buttonVariant={isOnboarded ? "secondary" : "primary"}
         />
       )}
@@ -338,9 +298,8 @@ function OnboardingCard({
   title,
   description,
   buttonLabel,
-  buttonLoading,
   buttonChecking,
-  onAction,
+  href,
   buttonVariant = "primary",
 }: {
   step: number;
@@ -348,11 +307,12 @@ function OnboardingCard({
   title: string;
   description: string;
   buttonLabel: string;
-  buttonLoading: boolean;
   buttonChecking?: boolean;
-  onAction: () => void;
+  href: string;
   buttonVariant?: "primary" | "secondary";
 }) {
+  const isDisabled = buttonChecking;
+
   return (
     <div
       className={`bg-dark1 border-2 ${
@@ -372,21 +332,28 @@ function OnboardingCard({
           <p className="text-sm text-lightgrey mt-1">{description}</p>
         </div>
       </div>
-      <button
-        onClick={onAction}
-        disabled={buttonLoading || buttonChecking}
-        className={`ml-11 px-6 py-2.5 rounded-full text-sm font-bold transition-colors disabled:opacity-50 ${
-          buttonVariant === "primary"
-            ? "bg-lime text-black hover:bg-lime/80"
-            : "border border-dark2 text-midgrey hover:border-lime hover:text-lime text-xs px-4 py-2"
-        }`}
-      >
-        {buttonLoading
-          ? "Redirecting..."
-          : buttonChecking
-            ? "Checking..."
-            : buttonLabel}
-      </button>
+      {isDisabled ? (
+        <span
+          className={`ml-11 inline-block px-6 py-2.5 rounded-full text-sm font-bold opacity-50 cursor-not-allowed ${
+            buttonVariant === "primary"
+              ? "bg-lime text-black"
+              : "border border-dark2 text-midgrey text-xs px-4 py-2"
+          }`}
+        >
+          Checking...
+        </span>
+      ) : (
+        <a
+          href={href}
+          className={`ml-11 inline-block px-6 py-2.5 rounded-full text-sm font-bold transition-colors cursor-pointer no-underline ${
+            buttonVariant === "primary"
+              ? "bg-lime text-black hover:bg-lime/80"
+              : "border border-dark2 text-midgrey hover:border-lime hover:text-lime text-xs px-4 py-2"
+          }`}
+        >
+          {buttonLabel}
+        </a>
+      )}
     </div>
   );
 }
