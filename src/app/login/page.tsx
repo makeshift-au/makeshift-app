@@ -128,13 +128,12 @@ function LoginForm() {
               >
                 {status === "loading" ? "Signing in..." : "Sign in →"}
               </button>
-              <button
-                type="button"
-                onClick={() => { setMode("magic"); setStatus("idle"); setErrorMsg(""); }}
-                className="w-full text-xs text-midgrey mt-4 text-center hover:text-lime transition-colors"
+              <a
+                href="/forgot-password"
+                className="w-full text-xs text-midgrey mt-4 text-center hover:text-lime transition-colors block"
               >
-                Forgot password? Use a magic link instead
-              </button>
+                Forgot your password?
+              </a>
             </form>
           ) : (
             <form onSubmit={handleMagicLink}>
