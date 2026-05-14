@@ -40,7 +40,7 @@ export default async function HomePage() {
               Browse artists &rarr;
             </Link>
             <Link
-              href="/for-creators"
+              href="/join"
               className="border border-dark2 text-white px-7 py-3.5 rounded-full text-sm hover:border-lime hover:text-lime transition-colors"
             >
               I&rsquo;m an artist
@@ -112,7 +112,7 @@ export default async function HomePage() {
             {Array.from({ length: 7 }).map((_, i) => (
               <Link
                 key={`coming-${i}`}
-                href="/for-creators"
+                href="/join"
                 className={`bg-dark1 border border-dark2 rounded-2xl overflow-hidden flex flex-col hover:border-lime/40 hover:-translate-y-0.5 transition-all group${i >= 5 ? " hidden lg:flex" : ""}`}
               >
                 <div className="aspect-[4/3] bg-dark2 flex items-center justify-center">
