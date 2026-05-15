@@ -276,7 +276,7 @@ export default function JoinPage() {
               We&rsquo;re looking for 25 founding artists to help shape Makeshift
               from the ground floor. In exchange for being early, you get a
               completely free subscription for your first 6 months. After that,
-              it&rsquo;s just $29/mo — and you can leave anytime.
+              it&rsquo;s just $15/mo — and you can leave anytime.
             </p>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
@@ -380,7 +380,7 @@ export default function JoinPage() {
             {[
               [
                 "What does it cost?",
-                "Nothing for your first 6 months as a founding artist. After that, it’s $29/month. We also take 10% commission on sales — only when you actually sell something. No listing fees, no hidden charges.",
+                "Nothing for your first 6 months as a founding artist. After that, it’s $15/month. We also take 10% commission on sales — only when you actually sell something. No listing fees, no hidden charges.",
               ],
               [
                 "How long does approval take?",
