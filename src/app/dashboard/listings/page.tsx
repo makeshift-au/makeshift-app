@@ -49,58 +49,108 @@ export default async function DashboardListingsPage() {
           </p>
         </div>
       ) : (
-        <div className="bg-dark1 border border-dark2 rounded-2xl overflow-hidden overflow-x-auto">
-          <table className="w-full text-sm min-w-[500px]">
-            <thead>
-              <tr className="border-b border-dark2">
-                <th className="text-left font-mono text-[10px] text-midgrey tracking-[0.15em] uppercase p-4 font-normal">Work</th>
-                <th className="text-left font-mono text-[10px] text-midgrey tracking-[0.15em] uppercase p-4 font-normal">Price</th>
-                <th className="text-left font-mono text-[10px] text-midgrey tracking-[0.15em] uppercase p-4 font-normal">Status</th>
-                <th className="text-right font-mono text-[10px] text-midgrey tracking-[0.15em] uppercase p-4 font-normal">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {listings.map((listing: any) => (
-                <tr key={listing.id} className="border-b border-dark2 last:border-b-0 hover:bg-black">
-                  <td className="p-4 flex items-center gap-3">
-                    {listing.image_urls?.[0] ? (
-                      <div className="w-10 h-10 rounded-lg flex-shrink-0 overflow-hidden relative">
-                        <Image
-                          src={listing.image_urls[0]}
-                          alt={listing.title}
-                          fill
-                          className="object-cover"
-                        />
-                      </div>
-                    ) : (
-                      <div className="w-10 h-10 bg-dark2 rounded-lg flex-shrink-0" />
-                    )}
-                    <span className="font-display font-bold">{listing.title}</span>
-                  </td>
-                  <td className="p-4">
-                    {listing.price_type === "from" ? "from " : ""}${listing.price}
-                  </td>
-                  <td className="p-4">
-                    <span className={`inline-block font-mono text-[10px] font-bold tracking-[0.1em] px-3 py-1 rounded-full uppercase ${
-                      listing.status === "live" ? "bg-lime/15 text-lime" :
-                      listing.status === "sold" ? "bg-pink/15 text-pink" :
-                      listing.status === "paused" ? "bg-orange/15 text-orange" :
-                      "bg-dark2 text-midgrey"
-                    }`}>{listing.status}</span>
-                  </td>
-                  <td className="p-4 text-right">
-                    <Link
-                      href={`/dashboard/listings/${listing.id}`}
-                      className="border border-dark2 text-white px-3 py-1.5 rounded-full text-xs hover:border-lime hover:text-lime transition-colors"
-                    >
-                      Edit
-                    </Link>
-                  </td>
+        <>
+          {/* ═══ MOBILE: Card layout ═══ */}
+          <div className="md:hidden space-y-3">
+            {listings.map((listing: any) => (
+              <div
+                key={listing.id}
+                className="bg-dark1 border border-dark2 rounded-2xl p-4"
+              >
+                <div className="flex items-center gap-3 mb-3">
+                  {listing.image_urls?.[0] ? (
+                    <div className="w-12 h-12 rounded-lg flex-shrink-0 overflow-hidden relative">
+                      <Image
+                        src={listing.image_urls[0]}
+                        alt={listing.title}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                  ) : (
+                    <div className="w-12 h-12 bg-dark2 rounded-lg flex-shrink-0" />
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <div className="font-display font-bold truncate">
+                      {listing.title}
+                    </div>
+                    <div className="text-sm text-midgrey">
+                      {listing.price_type === "from" ? "from " : ""}${listing.price}
+                    </div>
+                  </div>
+                  <span className={`flex-shrink-0 inline-block font-mono text-[10px] font-bold tracking-[0.1em] px-3 py-1 rounded-full uppercase ${
+                    listing.status === "live" ? "bg-lime/15 text-lime" :
+                    listing.status === "sold" ? "bg-pink/15 text-pink" :
+                    listing.status === "paused" ? "bg-orange/15 text-orange" :
+                    "bg-dark2 text-midgrey"
+                  }`}>{listing.status}</span>
+                </div>
+                <div className="flex justify-end">
+                  <Link
+                    href={`/dashboard/listings/${listing.id}`}
+                    className="border border-dark2 text-white px-4 py-1.5 rounded-full text-xs hover:border-lime hover:text-lime transition-colors"
+                  >
+                    Edit
+                  </Link>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* ═══ DESKTOP: Table layout ═══ */}
+          <div className="hidden md:block bg-dark1 border border-dark2 rounded-2xl overflow-hidden">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-dark2">
+                  <th className="text-left font-mono text-[10px] text-midgrey tracking-[0.15em] uppercase p-4 font-normal">Work</th>
+                  <th className="text-left font-mono text-[10px] text-midgrey tracking-[0.15em] uppercase p-4 font-normal">Price</th>
+                  <th className="text-left font-mono text-[10px] text-midgrey tracking-[0.15em] uppercase p-4 font-normal">Status</th>
+                  <th className="text-right font-mono text-[10px] text-midgrey tracking-[0.15em] uppercase p-4 font-normal">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {listings.map((listing: any) => (
+                  <tr key={listing.id} className="border-b border-dark2 last:border-b-0 hover:bg-black">
+                    <td className="p-4 flex items-center gap-3">
+                      {listing.image_urls?.[0] ? (
+                        <div className="w-10 h-10 rounded-lg flex-shrink-0 overflow-hidden relative">
+                          <Image
+                            src={listing.image_urls[0]}
+                            alt={listing.title}
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
+                      ) : (
+                        <div className="w-10 h-10 bg-dark2 rounded-lg flex-shrink-0" />
+                      )}
+                      <span className="font-display font-bold">{listing.title}</span>
+                    </td>
+                    <td className="p-4">
+                      {listing.price_type === "from" ? "from " : ""}${listing.price}
+                    </td>
+                    <td className="p-4">
+                      <span className={`inline-block font-mono text-[10px] font-bold tracking-[0.1em] px-3 py-1 rounded-full uppercase ${
+                        listing.status === "live" ? "bg-lime/15 text-lime" :
+                        listing.status === "sold" ? "bg-pink/15 text-pink" :
+                        listing.status === "paused" ? "bg-orange/15 text-orange" :
+                        "bg-dark2 text-midgrey"
+                      }`}>{listing.status}</span>
+                    </td>
+                    <td className="p-4 text-right">
+                      <Link
+                        href={`/dashboard/listings/${listing.id}`}
+                        className="border border-dark2 text-white px-3 py-1.5 rounded-full text-xs hover:border-lime hover:text-lime transition-colors"
+                      >
+                        Edit
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
       )}
     </>
   );

@@ -11,6 +11,20 @@ function timeAgo(dateStr: string) {
   return `${days}d ago`;
 }
 
+function statusBadge(status: string) {
+  return (
+    <span
+      className={`inline-block font-mono text-[10px] font-bold tracking-[0.1em] px-3 py-1 rounded-full uppercase ${
+        status === "disputed" || status === "refunded"
+          ? "bg-pink/15 text-pink"
+          : "bg-lime/15 text-lime"
+      }`}
+    >
+      {status}
+    </span>
+  );
+}
+
 export default async function AdminOrdersPage() {
   const supabase = await createClient();
 
@@ -22,8 +36,13 @@ export default async function AdminOrdersPage() {
 
   const allOrders = orders ?? [];
   const totalGMV = allOrders.reduce((s, o: any) => s + Number(o.amount), 0);
-  const totalFees = allOrders.reduce((s, o: any) => s + Number(o.platform_fee), 0);
-  const disputes = allOrders.filter((o: any) => o.status === "disputed").length;
+  const totalFees = allOrders.reduce(
+    (s, o: any) => s + Number(o.platform_fee),
+    0,
+  );
+  const disputes = allOrders.filter(
+    (o: any) => o.status === "disputed",
+  ).length;
 
   return (
     <>
@@ -44,8 +63,13 @@ export default async function AdminOrdersPage() {
           ["Platform Fees", `$${totalFees.toFixed(2)}`],
           ["Disputes", String(disputes)],
         ].map(([label, value]) => (
-          <div key={label} className="bg-dark1 border border-dark2 rounded-2xl p-5">
-            <div className="font-mono text-[10px] text-midgrey tracking-[0.1em] uppercase mb-2">{label}</div>
+          <div
+            key={label}
+            className="bg-dark1 border border-dark2 rounded-2xl p-5"
+          >
+            <div className="font-mono text-[10px] text-midgrey tracking-[0.1em] uppercase mb-2">
+              {label}
+            </div>
             <div className="font-display font-[800] text-2xl">{value}</div>
           </div>
         ))}
@@ -53,42 +77,106 @@ export default async function AdminOrdersPage() {
 
       {allOrders.length === 0 ? (
         <div className="bg-dark1 border border-dark2 rounded-2xl p-12 text-center">
-          <h3 className="font-display font-bold text-xl mb-2">No orders yet</h3>
-          <p className="text-midgrey text-sm">Orders will appear here once buyers start purchasing.</p>
+          <h3 className="font-display font-bold text-xl mb-2">
+            No orders yet
+          </h3>
+          <p className="text-midgrey text-sm">
+            Orders will appear here once buyers start purchasing.
+          </p>
         </div>
       ) : (
-        <div className="bg-dark1 border border-dark2 rounded-2xl overflow-hidden">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-dark2">
-                <th className="text-left font-mono text-[10px] text-midgrey tracking-[0.15em] uppercase p-4 font-normal">Order</th>
-                <th className="text-left font-mono text-[10px] text-midgrey tracking-[0.15em] uppercase p-4 font-normal">Artist</th>
-                <th className="text-left font-mono text-[10px] text-midgrey tracking-[0.15em] uppercase p-4 font-normal">Item</th>
-                <th className="text-left font-mono text-[10px] text-midgrey tracking-[0.15em] uppercase p-4 font-normal">Total</th>
-                <th className="text-left font-mono text-[10px] text-midgrey tracking-[0.15em] uppercase p-4 font-normal">Fee</th>
-                <th className="text-left font-mono text-[10px] text-midgrey tracking-[0.15em] uppercase p-4 font-normal">Status</th>
-                <th className="text-left font-mono text-[10px] text-midgrey tracking-[0.15em] uppercase p-4 font-normal">When</th>
-              </tr>
-            </thead>
-            <tbody>
-              {allOrders.map((order: any) => (
-                <tr key={order.id} className="border-b border-dark2 last:border-b-0 hover:bg-black">
-                  <td className="p-4 font-mono text-xs text-midgrey">#{order.order_number}</td>
-                  <td className="p-4 font-display font-bold">{order.artists?.name ?? "—"}</td>
-                  <td className="p-4">{order.listings?.title ?? "—"}</td>
-                  <td className="p-4 font-display font-bold">${Number(order.amount).toFixed(2)}</td>
-                  <td className="p-4 text-midgrey">${Number(order.platform_fee).toFixed(2)}</td>
-                  <td className="p-4">
-                    <span className={`inline-block font-mono text-[10px] font-bold tracking-[0.1em] px-3 py-1 rounded-full uppercase ${
-                      order.status === "disputed" || order.status === "refunded" ? "bg-pink/15 text-pink" : "bg-lime/15 text-lime"
-                    }`}>{order.status}</span>
-                  </td>
-                  <td className="p-4 font-mono text-xs text-midgrey">{timeAgo(order.created_at)}</td>
+        <>
+          {/* ═══ MOBILE: Card layout ═══ */}
+          <div className="md:hidden space-y-3">
+            {allOrders.map((order: any) => (
+              <div
+                key={order.id}
+                className="bg-dark1 border border-dark2 rounded-2xl p-4"
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <span className="font-mono text-xs text-midgrey">
+                    #{order.order_number}
+                  </span>
+                  {statusBadge(order.status)}
+                </div>
+                <div className="font-display font-bold mb-1">
+                  {order.listings?.title ?? "—"}
+                </div>
+                <div className="text-sm text-midgrey mb-3">
+                  {order.artists?.name ?? "—"}
+                </div>
+                <div className="flex items-center gap-4 text-sm">
+                  <span className="font-display font-bold">
+                    ${Number(order.amount).toFixed(2)}
+                  </span>
+                  <span className="text-midgrey">
+                    Fee: ${Number(order.platform_fee).toFixed(2)}
+                  </span>
+                  <span className="ml-auto font-mono text-xs text-midgrey">
+                    {timeAgo(order.created_at)}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* ═══ DESKTOP: Table layout ═══ */}
+          <div className="hidden md:block bg-dark1 border border-dark2 rounded-2xl overflow-hidden">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-dark2">
+                  <th className="text-left font-mono text-[10px] text-midgrey tracking-[0.15em] uppercase p-4 font-normal">
+                    Order
+                  </th>
+                  <th className="text-left font-mono text-[10px] text-midgrey tracking-[0.15em] uppercase p-4 font-normal">
+                    Artist
+                  </th>
+                  <th className="text-left font-mono text-[10px] text-midgrey tracking-[0.15em] uppercase p-4 font-normal">
+                    Item
+                  </th>
+                  <th className="text-left font-mono text-[10px] text-midgrey tracking-[0.15em] uppercase p-4 font-normal">
+                    Total
+                  </th>
+                  <th className="text-left font-mono text-[10px] text-midgrey tracking-[0.15em] uppercase p-4 font-normal">
+                    Fee
+                  </th>
+                  <th className="text-left font-mono text-[10px] text-midgrey tracking-[0.15em] uppercase p-4 font-normal">
+                    Status
+                  </th>
+                  <th className="text-left font-mono text-[10px] text-midgrey tracking-[0.15em] uppercase p-4 font-normal">
+                    When
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {allOrders.map((order: any) => (
+                  <tr
+                    key={order.id}
+                    className="border-b border-dark2 last:border-b-0 hover:bg-black"
+                  >
+                    <td className="p-4 font-mono text-xs text-midgrey">
+                      #{order.order_number}
+                    </td>
+                    <td className="p-4 font-display font-bold">
+                      {order.artists?.name ?? "—"}
+                    </td>
+                    <td className="p-4">{order.listings?.title ?? "—"}</td>
+                    <td className="p-4 font-display font-bold">
+                      ${Number(order.amount).toFixed(2)}
+                    </td>
+                    <td className="p-4 text-midgrey">
+                      ${Number(order.platform_fee).toFixed(2)}
+                    </td>
+                    <td className="p-4">{statusBadge(order.status)}</td>
+                    <td className="p-4 font-mono text-xs text-midgrey">
+                      {timeAgo(order.created_at)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
       )}
     </>
   );

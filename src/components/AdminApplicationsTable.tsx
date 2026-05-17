@@ -46,6 +46,74 @@ function timeAgo(dateStr: string) {
   return `${days}d ago`;
 }
 
+/* ── Detail panel (shared between table & card) ── */
+function DetailPanel({ a }: { a: Application }) {
+  return (
+    <div className="p-4 md:p-6 bg-black/50">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+        {a.phone && (
+          <div>
+            <span className="font-mono text-[10px] text-midgrey tracking-[0.1em] block mb-1">PHONE</span>
+            {a.phone}
+          </div>
+        )}
+        <div>
+          <span className="font-mono text-[10px] text-midgrey tracking-[0.1em] block mb-1">LOCATION</span>
+          {[a.city, a.state].filter(Boolean).join(", ") || "—"}
+        </div>
+        {a.price_range && (
+          <div>
+            <span className="font-mono text-[10px] text-midgrey tracking-[0.1em] block mb-1">PRICE RANGE</span>
+            {a.price_range}
+          </div>
+        )}
+        {a.lead_time && (
+          <div>
+            <span className="font-mono text-[10px] text-midgrey tracking-[0.1em] block mb-1">LEAD TIME</span>
+            {a.lead_time}
+          </div>
+        )}
+        {a.instagram && (
+          <div>
+            <span className="font-mono text-[10px] text-midgrey tracking-[0.1em] block mb-1">INSTAGRAM</span>
+            {a.instagram}
+          </div>
+        )}
+        {a.slug_preference && (
+          <div>
+            <span className="font-mono text-[10px] text-midgrey tracking-[0.1em] block mb-1">REQUESTED URL</span>
+            /artist/{a.slug_preference}
+          </div>
+        )}
+      </div>
+      {a.bio && (
+        <div className="mt-4">
+          <span className="font-mono text-[10px] text-midgrey tracking-[0.1em] block mb-1">BIO</span>
+          <p className="text-lightgrey">{a.bio}</p>
+        </div>
+      )}
+      {a.work_description && (
+        <div className="mt-4">
+          <span className="font-mono text-[10px] text-midgrey tracking-[0.1em] block mb-1">WORK DESCRIPTION</span>
+          <p className="text-lightgrey">{a.work_description}</p>
+        </div>
+      )}
+      {a.why_makeshift && (
+        <div className="mt-4">
+          <span className="font-mono text-[10px] text-midgrey tracking-[0.1em] block mb-1">WHY MAKESHIFT</span>
+          <p className="text-lightgrey">{a.why_makeshift}</p>
+        </div>
+      )}
+      {a.reviewer_notes && (
+        <div className="mt-4">
+          <span className="font-mono text-[10px] text-midgrey tracking-[0.1em] block mb-1">REVIEWER NOTES</span>
+          <p className="text-pink">{a.reviewer_notes}</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function AdminApplicationsTable() {
   const [apps, setApps] = useState<Application[]>([]);
   const [filter, setFilter] = useState("all");
@@ -91,7 +159,7 @@ export default function AdminApplicationsTable() {
 
   async function handleReject(id: string) {
     const notes = prompt("Rejection reason (optional):");
-    if (notes === null) return; // cancelled
+    if (notes === null) return;
     setActionLoading(id);
     const result = await rejectApplication(id, notes || undefined);
     if (result.error) alert(result.error);
@@ -104,6 +172,47 @@ export default function AdminApplicationsTable() {
     await markInReview(id);
     await loadApps();
     setActionLoading(null);
+  }
+
+  /* ── Action buttons (shared) ── */
+  function ActionButtons({ a }: { a: Application }) {
+    if (actionLoading === a.id) {
+      return <span className="font-mono text-xs text-midgrey">...</span>;
+    }
+    return (
+      <div className="flex flex-wrap gap-2">
+        {a.status === "new" && (
+          <button
+            onClick={(e) => { e.stopPropagation(); handleReview(a.id); }}
+            className="border border-blue text-blue font-mono text-[10px] px-3 py-1 rounded-full tracking-[0.05em]"
+          >
+            REVIEW
+          </button>
+        )}
+        {(a.status === "new" || a.status === "in_review") && (
+          <>
+            <button
+              onClick={(e) => { e.stopPropagation(); handleApprove(a.id); }}
+              className="bg-lime text-black font-mono text-[10px] font-bold px-3 py-1.5 rounded-full tracking-[0.05em]"
+            >
+              APPROVE
+            </button>
+            <button
+              onClick={(e) => { e.stopPropagation(); handleReject(a.id); }}
+              className="border border-pink text-pink font-mono text-[10px] px-3 py-1 rounded-full tracking-[0.05em]"
+            >
+              REJECT
+            </button>
+          </>
+        )}
+        {a.status === "approved" && (
+          <span className="font-mono text-[10px] text-lime tracking-[0.05em]">✓ ONBOARDING</span>
+        )}
+        {a.status === "rejected" && (
+          <span className="font-mono text-[10px] text-midgrey tracking-[0.05em]">CLOSED</span>
+        )}
+      </div>
+    );
   }
 
   return (
@@ -131,13 +240,14 @@ export default function AdminApplicationsTable() {
             {label} · {counts[key]}
           </button>
         ))}
-        <input
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="flex-1 min-w-[200px] bg-dark1 border border-dark2 rounded-full px-4 py-2 text-sm text-white focus:border-lime focus:outline-none"
-          placeholder="Search by name, email, or city..."
-        />
       </div>
+
+      <input
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        className="w-full bg-dark1 border border-dark2 rounded-xl px-4 py-3 text-sm text-white focus:border-lime focus:outline-none mb-6"
+        placeholder="Search by name, email, or city..."
+      />
 
       {loading ? (
         <div className="text-center py-12 text-midgrey font-mono text-sm">
@@ -155,215 +265,116 @@ export default function AdminApplicationsTable() {
           </p>
         </div>
       ) : (
-        <div className="bg-dark1 border border-dark2 rounded-2xl overflow-hidden">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-dark2">
-                <th className="text-left font-mono text-[10px] text-midgrey tracking-[0.15em] uppercase p-4 font-normal">
-                  Applicant
-                </th>
-                <th className="text-left font-mono text-[10px] text-midgrey tracking-[0.15em] uppercase p-4 font-normal">
-                  Discipline
-                </th>
-                <th className="text-left font-mono text-[10px] text-midgrey tracking-[0.15em] uppercase p-4 font-normal">
-                  Applied
-                </th>
-                <th className="text-left font-mono text-[10px] text-midgrey tracking-[0.15em] uppercase p-4 font-normal">
-                  Status
-                </th>
-                <th className="text-right font-mono text-[10px] text-midgrey tracking-[0.15em] uppercase p-4 font-normal">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredApps.map((a) => (
-                <>
-                  <tr
-                    key={a.id}
-                    className="border-b border-dark2 last:border-b-0 hover:bg-black cursor-pointer"
-                    onClick={() =>
-                      setExpanded(expanded === a.id ? null : a.id)
-                    }
-                  >
-                    <td className="p-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-lg flex-shrink-0 bg-dark2 flex items-center justify-center font-display font-bold text-sm text-midgrey">
-                          {a.full_name
-                            .split(" ")
-                            .map((w) => w[0])
-                            .join("")
-                            .slice(0, 2)}
-                        </div>
-                        <div>
-                          <div className="font-display font-bold">
-                            {a.full_name}
+        <>
+          {/* ═══ MOBILE: Card layout ═══ */}
+          <div className="md:hidden space-y-3">
+            {filteredApps.map((a) => (
+              <div
+                key={a.id}
+                className="bg-dark1 border border-dark2 rounded-2xl overflow-hidden"
+              >
+                <div
+                  className="p-4 cursor-pointer"
+                  onClick={() => setExpanded(expanded === a.id ? null : a.id)}
+                >
+                  {/* Top row: avatar + name + status */}
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-10 h-10 rounded-lg flex-shrink-0 bg-dark2 flex items-center justify-center font-display font-bold text-sm text-midgrey">
+                      {a.full_name.split(" ").map((w) => w[0]).join("").slice(0, 2)}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="font-display font-bold truncate">{a.full_name}</div>
+                      <div className="font-mono text-[10px] text-midgrey truncate">{a.email}</div>
+                    </div>
+                    <span
+                      className={`flex-shrink-0 font-mono text-[10px] font-bold tracking-[0.1em] px-2.5 py-1 rounded-full ${STATUS_COLORS[a.status] ?? "bg-dark2 text-midgrey"}`}
+                    >
+                      {a.status.toUpperCase().replace("_", " ")}
+                    </span>
+                  </div>
+                  {/* Meta row */}
+                  <div className="flex items-center gap-4 text-xs text-midgrey mb-3">
+                    <span>{a.disciplines?.join(", ") || "—"}</span>
+                    <span className="font-mono">{timeAgo(a.created_at)}</span>
+                  </div>
+                  {/* Actions */}
+                  <ActionButtons a={a} />
+                </div>
+
+                {expanded === a.id && (
+                  <div className="border-t border-dark2">
+                    <DetailPanel a={a} />
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+
+          {/* ═══ DESKTOP: Table layout ═══ */}
+          <div className="hidden md:block bg-dark1 border border-dark2 rounded-2xl overflow-hidden">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-dark2">
+                  <th className="text-left font-mono text-[10px] text-midgrey tracking-[0.15em] uppercase p-4 font-normal">
+                    Applicant
+                  </th>
+                  <th className="text-left font-mono text-[10px] text-midgrey tracking-[0.15em] uppercase p-4 font-normal">
+                    Discipline
+                  </th>
+                  <th className="text-left font-mono text-[10px] text-midgrey tracking-[0.15em] uppercase p-4 font-normal">
+                    Applied
+                  </th>
+                  <th className="text-left font-mono text-[10px] text-midgrey tracking-[0.15em] uppercase p-4 font-normal">
+                    Status
+                  </th>
+                  <th className="text-right font-mono text-[10px] text-midgrey tracking-[0.15em] uppercase p-4 font-normal">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredApps.map((a) => (
+                  <>
+                    <tr
+                      key={a.id}
+                      className="border-b border-dark2 last:border-b-0 hover:bg-black cursor-pointer"
+                      onClick={() => setExpanded(expanded === a.id ? null : a.id)}
+                    >
+                      <td className="p-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-lg flex-shrink-0 bg-dark2 flex items-center justify-center font-display font-bold text-sm text-midgrey">
+                            {a.full_name.split(" ").map((w) => w[0]).join("").slice(0, 2)}
                           </div>
-                          <div className="font-mono text-[10px] text-midgrey">
-                            {a.email}
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="p-4">
-                      {a.disciplines?.join(", ") || "—"}
-                    </td>
-                    <td className="p-4 font-mono text-xs text-midgrey">
-                      {timeAgo(a.created_at)}
-                    </td>
-                    <td className="p-4">
-                      <span
-                        className={`inline-block font-mono text-[10px] font-bold tracking-[0.1em] px-3 py-1 rounded-full ${STATUS_COLORS[a.status] ?? "bg-dark2 text-midgrey"}`}
-                      >
-                        {a.status.toUpperCase().replace("_", " ")}
-                      </span>
-                    </td>
-                    <td className="p-4 text-right">
-                      {actionLoading === a.id ? (
-                        <span className="font-mono text-xs text-midgrey">
-                          ...
-                        </span>
-                      ) : (
-                        <div
-                          className="flex gap-2 justify-end"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          {a.status === "new" && (
-                            <button
-                              onClick={() => handleReview(a.id)}
-                              className="border border-blue text-blue font-mono text-[10px] px-3 py-1 rounded-full tracking-[0.05em]"
-                            >
-                              REVIEW
-                            </button>
-                          )}
-                          {(a.status === "new" ||
-                            a.status === "in_review") && (
-                            <>
-                              <button
-                                onClick={() => handleApprove(a.id)}
-                                className="bg-lime text-black font-mono text-[10px] font-bold px-3 py-1.5 rounded-full tracking-[0.05em]"
-                              >
-                                APPROVE
-                              </button>
-                              <button
-                                onClick={() => handleReject(a.id)}
-                                className="border border-pink text-pink font-mono text-[10px] px-3 py-1 rounded-full tracking-[0.05em]"
-                              >
-                                REJECT
-                              </button>
-                            </>
-                          )}
-                          {a.status === "approved" && (
-                            <span className="font-mono text-[10px] text-lime tracking-[0.05em]">
-                              ✓ ONBOARDING
-                            </span>
-                          )}
-                          {a.status === "rejected" && (
-                            <span className="font-mono text-[10px] text-midgrey tracking-[0.05em]">
-                              CLOSED
-                            </span>
-                          )}
-                        </div>
-                      )}
-                    </td>
-                  </tr>
-                  {/* Expanded detail row */}
-                  {expanded === a.id && (
-                    <tr key={`${a.id}-detail`} className="border-b border-dark2">
-                      <td colSpan={5} className="p-6 bg-black/50">
-                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
-                          {a.phone && (
-                            <div>
-                              <span className="font-mono text-[10px] text-midgrey tracking-[0.1em] block mb-1">
-                                PHONE
-                              </span>
-                              {a.phone}
-                            </div>
-                          )}
                           <div>
-                            <span className="font-mono text-[10px] text-midgrey tracking-[0.1em] block mb-1">
-                              LOCATION
-                            </span>
-                            {[a.city, a.state].filter(Boolean).join(", ") ||
-                              "—"}
+                            <div className="font-display font-bold">{a.full_name}</div>
+                            <div className="font-mono text-[10px] text-midgrey">{a.email}</div>
                           </div>
-                          {a.price_range && (
-                            <div>
-                              <span className="font-mono text-[10px] text-midgrey tracking-[0.1em] block mb-1">
-                                PRICE RANGE
-                              </span>
-                              {a.price_range}
-                            </div>
-                          )}
-                          {a.lead_time && (
-                            <div>
-                              <span className="font-mono text-[10px] text-midgrey tracking-[0.1em] block mb-1">
-                                LEAD TIME
-                              </span>
-                              {a.lead_time}
-                            </div>
-                          )}
-                          {a.instagram && (
-                            <div>
-                              <span className="font-mono text-[10px] text-midgrey tracking-[0.1em] block mb-1">
-                                INSTAGRAM
-                              </span>
-                              {a.instagram}
-                            </div>
-                          )}
-                          {a.slug_preference && (
-                            <div>
-                              <span className="font-mono text-[10px] text-midgrey tracking-[0.1em] block mb-1">
-                                REQUESTED URL
-                              </span>
-                              /artist/{a.slug_preference}
-                            </div>
-                          )}
                         </div>
-                        {a.bio && (
-                          <div className="mt-4">
-                            <span className="font-mono text-[10px] text-midgrey tracking-[0.1em] block mb-1">
-                              BIO
-                            </span>
-                            <p className="text-lightgrey">{a.bio}</p>
-                          </div>
-                        )}
-                        {a.work_description && (
-                          <div className="mt-4">
-                            <span className="font-mono text-[10px] text-midgrey tracking-[0.1em] block mb-1">
-                              WORK DESCRIPTION
-                            </span>
-                            <p className="text-lightgrey">
-                              {a.work_description}
-                            </p>
-                          </div>
-                        )}
-                        {a.why_makeshift && (
-                          <div className="mt-4">
-                            <span className="font-mono text-[10px] text-midgrey tracking-[0.1em] block mb-1">
-                              WHY MAKESHIFT
-                            </span>
-                            <p className="text-lightgrey">
-                              {a.why_makeshift}
-                            </p>
-                          </div>
-                        )}
-                        {a.reviewer_notes && (
-                          <div className="mt-4">
-                            <span className="font-mono text-[10px] text-midgrey tracking-[0.1em] block mb-1">
-                              REVIEWER NOTES
-                            </span>
-                            <p className="text-pink">{a.reviewer_notes}</p>
-                          </div>
-                        )}
+                      </td>
+                      <td className="p-4">{a.disciplines?.join(", ") || "—"}</td>
+                      <td className="p-4 font-mono text-xs text-midgrey">{timeAgo(a.created_at)}</td>
+                      <td className="p-4">
+                        <span className={`inline-block font-mono text-[10px] font-bold tracking-[0.1em] px-3 py-1 rounded-full ${STATUS_COLORS[a.status] ?? "bg-dark2 text-midgrey"}`}>
+                          {a.status.toUpperCase().replace("_", " ")}
+                        </span>
+                      </td>
+                      <td className="p-4 text-right" onClick={(e) => e.stopPropagation()}>
+                        <ActionButtons a={a} />
                       </td>
                     </tr>
-                  )}
-                </>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                    {expanded === a.id && (
+                      <tr key={`${a.id}-detail`} className="border-b border-dark2">
+                        <td colSpan={5}>
+                          <DetailPanel a={a} />
+                        </td>
+                      </tr>
+                    )}
+                  </>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
       )}
     </>
   );
