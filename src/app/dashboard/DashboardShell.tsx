@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState, useEffect } from "react";
 
 const navItems = [
   { href: "/dashboard", label: "Home", key: "home" },
@@ -28,6 +29,12 @@ export default function DashboardShell({
   artistStatus,
 }: DashboardShellProps) {
   const pathname = usePathname();
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  // Close menu on route change
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [pathname]);
 
   const initials = artistName
     .split(" ")
@@ -51,8 +58,49 @@ export default function DashboardShell({
         : "bg-midgrey";
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-[260px_1fr] min-h-screen">
-      <aside className="bg-dark1 border-r border-dark2 p-5 flex flex-col sticky top-0 h-screen overflow-y-auto">
+    <div className="md:grid md:grid-cols-[260px_1fr] min-h-screen">
+      {/* Mobile top bar */}
+      <div className="md:hidden flex items-center justify-between bg-dark1 border-b border-dark2 px-4 py-3 sticky top-0 z-50">
+        <div className="font-display font-[800] text-lg tracking-[0.05em]">
+          MAKE<span className="text-lime">SHIFT</span>
+          <span className="font-mono text-[8px] text-lime tracking-[0.2em] font-normal ml-2">
+            STUDIO
+          </span>
+        </div>
+        <button
+          onClick={() => setMenuOpen(!menuOpen)}
+          className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-dark2 transition-colors"
+          aria-label="Toggle menu"
+        >
+          {menuOpen ? (
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M18 6L6 18M6 6l12 12" />
+            </svg>
+          ) : (
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M3 12h18M3 6h18M3 18h18" />
+            </svg>
+          )}
+        </button>
+      </div>
+
+      {/* Mobile overlay */}
+      {menuOpen && (
+        <div
+          className="md:hidden fixed inset-0 bg-black/60 z-40"
+          onClick={() => setMenuOpen(false)}
+        />
+      )}
+
+      {/* Sidebar */}
+      <aside
+        className={`
+          fixed top-0 left-0 z-40 h-screen w-[280px] bg-dark1 border-r border-dark2 p-5 flex flex-col overflow-y-auto
+          transition-transform duration-200 ease-in-out
+          md:sticky md:translate-x-0
+          ${menuOpen ? "translate-x-0" : "-translate-x-full"}
+        `}
+      >
         <div className="font-display font-[800] text-[22px] tracking-[0.05em] px-3 pb-5 border-b border-dark2 mb-5">
           MAKE<span className="text-lime">SHIFT</span>
           <span className="block font-mono text-[9px] text-lime tracking-[0.2em] font-normal mt-1">
@@ -115,7 +163,7 @@ export default function DashboardShell({
         </div>
       </aside>
 
-      <main className="p-8 md:p-10 max-w-[1200px]">{children}</main>
+      <main className="p-6 md:p-10 max-w-[1200px]">{children}</main>
     </div>
   );
 }
