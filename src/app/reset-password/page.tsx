@@ -8,58 +8,83 @@ import { createClient } from "@/lib/supabase/client";
 export default function ResetPasswordPage() {
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
-  const [status, setStatus] = useState<"init" | "ready" | "loading" | "success" | "error">("init");
+  const [status, setStatus] = useState<
+    "init" | "ready" | "loading" | "success" | "error" | "link-error"
+  >("init");
   const [errorMsg, setErrorMsg] = useState("");
   const router = useRouter();
 
-  // On mount, exchange the code from URL for a session (PKCE flow)
   useEffect(() => {
     const supabase = createClient();
-
-    // Check for code in URL query params (PKCE redirect from Supabase)
     const params = new URLSearchParams(window.location.search);
+    const tokenHash = params.get("token_hash");
+    const type = params.get("type");
     const code = params.get("code");
 
-    if (code) {
-      supabase.auth.exchangeCodeForSession(code).then(({ error }) => {
+    async function verifyToken() {
+      // Method 1: token_hash flow (custom email template — most reliable)
+      if (tokenHash && type === "recovery") {
+        const { error } = await supabase.auth.verifyOtp({
+          token_hash: tokenHash,
+          type: "recovery",
+        });
+        window.history.replaceState({}, "", "/reset-password");
+        if (error) {
+          console.error("Token verification failed:", error.message);
+          setErrorMsg("This reset link has expired or already been used. Please request a new one.");
+          setStatus("link-error");
+          return;
+        }
+        setStatus("ready");
+        return;
+      }
+
+      // Method 2: PKCE code flow (fallback)
+      if (code) {
+        const { error } = await supabase.auth.exchangeCodeForSession(code);
+        window.history.replaceState({}, "", "/reset-password");
         if (error) {
           console.error("Code exchange failed:", error.message);
-          // Still allow the form — user might already have a session
+          setErrorMsg("This reset link has expired or already been used. Please request a new one.");
+          setStatus("link-error");
+          return;
         }
-        // Clean the URL
-        window.history.replaceState({}, "", "/reset-password");
         setStatus("ready");
-      });
-    } else {
-      // No code — check if user already has a valid session (e.g. came via onAuthStateChange)
-      supabase.auth.getSession().then(({ data }) => {
-        if (data.session) {
+        return;
+      }
+
+      // Method 3: Check for existing session (e.g. user navigated here directly)
+      const { data } = await supabase.auth.getSession();
+      if (data.session) {
+        setStatus("ready");
+        return;
+      }
+
+      // Method 4: Listen for PASSWORD_RECOVERY event from URL hash fragment
+      const {
+        data: { subscription },
+      } = supabase.auth.onAuthStateChange((event) => {
+        if (event === "PASSWORD_RECOVERY") {
           setStatus("ready");
-        } else {
-          // Listen for PASSWORD_RECOVERY event from hash fragment (implicit flow fallback)
-          const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-            if (event === "PASSWORD_RECOVERY") {
-              setStatus("ready");
-            }
-          });
-
-          // Give it a moment, then show form anyway or redirect
-          setTimeout(() => {
-            setStatus((prev) => {
-              if (prev === "init") {
-                // No session, no recovery event — redirect to forgot-password
-                router.push("/forgot-password");
-                return prev;
-              }
-              return prev;
-            });
-          }, 3000);
-
-          return () => subscription.unsubscribe();
         }
       });
+
+      // If nothing works after 3s, show error
+      setTimeout(() => {
+        setStatus((prev) => {
+          if (prev === "init") {
+            setErrorMsg("No valid reset link found. Please request a new password reset.");
+            return "link-error";
+          }
+          return prev;
+        });
+      }, 3000);
+
+      return () => subscription.unsubscribe();
     }
-  }, [router]);
+
+    verifyToken();
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -95,7 +120,10 @@ export default function ResetPasswordPage() {
     <div className="min-h-screen flex items-center justify-center px-6 bg-black">
       <div className="w-full max-w-sm">
         <div className="text-center mb-10">
-          <Link href="/" className="font-display font-[800] text-3xl tracking-[0.05em] mb-2 inline-block">
+          <Link
+            href="/"
+            className="font-display font-[800] text-3xl tracking-[0.05em] mb-2 inline-block"
+          >
             MAKE<span className="text-lime">SHIFT</span>
           </Link>
           <p className="text-midgrey text-sm">Set a new password</p>
@@ -104,29 +132,45 @@ export default function ResetPasswordPage() {
         <div className="bg-dark1 border border-dark2 rounded-2xl p-8">
           {status === "init" ? (
             <div className="text-center py-4">
-              <div className="font-mono text-sm text-midgrey">Verifying your reset link...</div>
+              <div className="font-mono text-sm text-midgrey">
+                Verifying your reset link...
+              </div>
             </div>
+          ) : status === "link-error" ? (
+            <>
+              <h2 className="font-display font-bold text-xl mb-2">
+                Link expired
+              </h2>
+              <p className="text-sm text-midgrey mb-6">{errorMsg}</p>
+              <Link
+                href="/forgot-password"
+                className="block w-full bg-lime text-black py-3.5 rounded-full font-semibold text-center hover:-translate-y-0.5 transition-transform"
+              >
+                Request new link &rarr;
+              </Link>
+            </>
           ) : status === "success" ? (
             <>
-              <h2 className="font-display font-bold text-xl mb-2">Password updated</h2>
+              <h2 className="font-display font-bold text-xl mb-2">
+                Password updated
+              </h2>
               <p className="text-sm text-midgrey mb-4">
                 Your password has been changed. Redirecting to your dashboard...
               </p>
-              <Link
-                href="/dashboard"
-                className="text-sm text-lime hover:underline"
-              >
-                Go to dashboard →
+              <Link href="/dashboard" className="text-sm text-lime hover:underline">
+                Go to dashboard &rarr;
               </Link>
             </>
           ) : (
             <form onSubmit={handleSubmit}>
-              <h2 className="font-display font-bold text-xl mb-2">New password</h2>
+              <h2 className="font-display font-bold text-xl mb-2">
+                New password
+              </h2>
               <p className="text-sm text-midgrey mb-6">
                 Enter a new password for your account.
               </p>
 
-              {(status === "error") && errorMsg && (
+              {status === "error" && errorMsg && (
                 <div className="bg-pink/10 border border-pink/30 rounded-lg px-4 py-3 text-sm text-pink mb-4">
                   {errorMsg}
                 </div>
