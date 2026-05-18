@@ -46,7 +46,7 @@ export default function JoinPage() {
               folding table.
             </span>
           </h1>
-          <p className="text-xl text-lightgrey max-w-2xl mb-10 leading-relaxed">
+          <p className="text-lg md:text-xl text-lightgrey max-w-2xl mb-10 leading-relaxed">
             You&rsquo;ve done the markets. You&rsquo;ve posted on Instagram hoping
             the algorithm cares. You&rsquo;ve wondered if you could actually make a
             living from the thing you love most. You can.
@@ -74,7 +74,7 @@ export default function JoinPage() {
           <div className="font-mono text-sm text-lime tracking-[0.1em] mb-2">
             / SOUND FAMILIAR?
           </div>
-          <h2 className="font-display font-[800] text-[clamp(28px,5vw,48px)] leading-[1.0] tracking-[-0.02em] mb-10">
+          <h2 className="font-display font-[800] text-[clamp(24px,5vw,48px)] leading-[1.0] tracking-[-0.02em] mb-10">
             You make incredible things.
             <br />
             <span className="text-midgrey">Selling them shouldn&rsquo;t be this hard.</span>
@@ -115,7 +115,7 @@ export default function JoinPage() {
       ════════════════════════════════════════════ */}
       <section className="px-6 md:px-12 py-20 border-t border-dark2">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="font-display font-[800] text-[clamp(28px,5vw,52px)] leading-[1.0] tracking-[-0.02em] mb-6">
+          <h2 className="font-display font-[800] text-[clamp(24px,5vw,52px)] leading-[1.0] tracking-[-0.02em] mb-6">
             What if your stall
             <br />
             <span className="text-lime">never closed?</span>
@@ -142,7 +142,7 @@ export default function JoinPage() {
           <div className="font-mono text-sm text-lime tracking-[0.1em] mb-2">
             / HOW IT WORKS
           </div>
-          <h2 className="font-display font-bold text-3xl mb-10">
+          <h2 className="font-display font-bold text-2xl md:text-3xl mb-10">
             From application to your first sale.
           </h2>
           <div className="space-y-8">
@@ -181,7 +181,7 @@ export default function JoinPage() {
           <div className="font-mono text-sm text-lime tracking-[0.1em] mb-2">
             / WHAT YOU GET
           </div>
-          <h2 className="font-display font-bold text-3xl mb-10">
+          <h2 className="font-display font-bold text-2xl md:text-3xl mb-10">
             Everything you need. Nothing you don&rsquo;t.
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-5">
@@ -216,7 +216,7 @@ export default function JoinPage() {
           <div className="font-mono text-sm text-lime tracking-[0.1em] mb-2">
             / WHO IT&rsquo;S FOR
           </div>
-          <h2 className="font-display font-bold text-3xl mb-3">
+          <h2 className="font-display font-bold text-2xl md:text-3xl mb-3">
             If you make it by hand, you belong here.
           </h2>
           <p className="text-lightgrey mb-8 max-w-2xl">
@@ -260,7 +260,7 @@ export default function JoinPage() {
                 <div className="font-mono text-xs text-lime tracking-[0.15em] mb-2">
                   LIMITED OFFER
                 </div>
-                <h2 className="font-display font-[800] text-3xl md:text-4xl">
+                <h2 className="font-display font-[800] text-2xl md:text-4xl">
                   Founding Artist Plan
                 </h2>
               </div>
@@ -333,7 +333,7 @@ export default function JoinPage() {
           <div className="font-mono text-sm text-lime tracking-[0.1em] mb-2">
             / BUILT IN MELBOURNE
           </div>
-          <h2 className="font-display font-[800] text-[clamp(28px,5vw,48px)] leading-[1.0] tracking-[-0.02em] mb-6">
+          <h2 className="font-display font-[800] text-[clamp(24px,5vw,48px)] leading-[1.0] tracking-[-0.02em] mb-6">
             From the laneways
             <br />
             to the internet.
@@ -373,7 +373,7 @@ export default function JoinPage() {
           <div className="font-mono text-sm text-lime tracking-[0.1em] mb-2">
             / QUESTIONS
           </div>
-          <h2 className="font-display font-bold text-3xl mb-8">
+          <h2 className="font-display font-bold text-2xl md:text-3xl mb-8">
             Before you ask.
           </h2>
           <div className="space-y-6">
