@@ -196,7 +196,7 @@ export async function sendArtistWelcome({
         </div>
 
         <div style="margin-bottom: 32px;">
-          <a href="${appUrl}/login" style="display: inline-block; background: #C8FF00; color: #000; font-weight: 700; padding: 14px 28px; border-radius: 999px; text-decoration: none; font-size: 15px;">
+          <a href="${appUrl}/login?redirect=/dashboard/setup" style="display: inline-block; background: #C8FF00; color: #000; font-weight: 700; padding: 14px 28px; border-radius: 999px; text-decoration: none; font-size: 15px;">
             Sign in to your Creator Studio &rarr;
           </a>
         </div>
