@@ -1,4 +1,5 @@
 import { getCurrentArtist, getMyOrders, getMyListings, getMyEnquiries } from "@/lib/dashboard";
+import { redirect } from "next/navigation";
 import Link from "next/link";
 import type { Metadata } from "next";
 
@@ -14,6 +15,12 @@ function timeAgo(dateStr: string) {
 
 export default async function DashboardHome() {
   const artist = await getCurrentArtist();
+
+  // Redirect onboarding artists to the setup guide
+  if (artist?.status === "onboarding") {
+    redirect("/dashboard/setup");
+  }
+
   const artistName = artist?.name?.split(" ")[0] ?? "Creator";
 
   const [orders, listings, enquiries] = artist

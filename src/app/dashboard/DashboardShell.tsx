@@ -4,16 +4,27 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 
-const navItems = [
-  { href: "/dashboard", label: "Home", key: "home" },
-  { href: "/dashboard/page-editor", label: "My Page", key: "page" },
-  { href: "/dashboard/listings", label: "Listings", key: "listings" },
-  { href: "/dashboard/enquiries", label: "Enquiries", key: "enquiries" },
-  { href: "/dashboard/orders", label: "Orders", key: "orders" },
-  { href: "/dashboard/analytics", label: "Analytics", key: "analytics" },
-  { href: "/dashboard/billing", label: "Billing", key: "billing" },
-  { href: "/dashboard/settings", label: "Settings", key: "settings" },
-];
+function getNavItems(isOnboarding: boolean) {
+  const items = [
+    { href: "/dashboard", label: "Home", key: "home" },
+  ];
+
+  if (isOnboarding) {
+    items.push({ href: "/dashboard/setup", label: "Setup", key: "setup" });
+  }
+
+  items.push(
+    { href: "/dashboard/page-editor", label: "My Page", key: "page" },
+    { href: "/dashboard/listings", label: "Listings", key: "listings" },
+    { href: "/dashboard/enquiries", label: "Enquiries", key: "enquiries" },
+    { href: "/dashboard/orders", label: "Orders", key: "orders" },
+    { href: "/dashboard/analytics", label: "Analytics", key: "analytics" },
+    { href: "/dashboard/billing", label: "Billing", key: "billing" },
+    { href: "/dashboard/settings", label: "Settings", key: "settings" },
+  );
+
+  return items;
+}
 
 interface DashboardShellProps {
   children: React.ReactNode;
@@ -42,6 +53,9 @@ export default function DashboardShell({
     .join("")
     .toUpperCase()
     .slice(0, 2);
+
+  const isOnboarding = artistStatus === "onboarding";
+  const navItems = getNavItems(isOnboarding);
 
   const statusLabel =
     artistStatus === "live"

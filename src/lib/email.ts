@@ -287,7 +287,7 @@ export async function sendOnboardingReminder({
 
   const footerNote =
     dayNumber === 7
-      ? `<p style="color: #888; line-height: 1.6; margin-bottom: 24px;">
+      ? `<p style="color: #555; line-height: 1.6; margin-bottom: 24px;">
           This is our last automated nudge — but you can set up your page any time.
           If you have questions or need help, just reply to this email.
         </p>`
@@ -299,30 +299,30 @@ export async function sendOnboardingReminder({
     subject: subjects[dayNumber],
     html: `
       <div style="font-family: system-ui, -apple-system, sans-serif; max-width: 560px; margin: 0 auto; padding: 32px 0;">
-        <h1 style="font-size: 28px; font-weight: 800; margin-bottom: 16px;">
+        <h1 style="font-size: 28px; font-weight: 800; margin-bottom: 16px; color: #111;">
           ${dayNumber === 1 ? "Let's get you set up." : dayNumber === 3 ? "You're almost there." : "We'd love to see your work."}
         </h1>
 
-        <p style="color: #CCC; line-height: 1.6; margin-bottom: 24px;">
+        <p style="color: #333; line-height: 1.6; margin-bottom: 24px;">
           ${intros[dayNumber]}
         </p>
 
         <div style="background: #1A1A1A; border: 1px solid #2A2A2A; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
           <p style="margin: 0 0 12px; font-weight: 700; color: #C8FF00; font-size: 14px;">TO-DO (${items.length} ${items.length === 1 ? "item" : "items"} remaining)</p>
           <ul style="margin: 0; padding-left: 20px; list-style: none;">
-            ${items.map((item) => `<li style="margin-bottom: 8px; color: #CCC; padding-left: 4px;">☐ ${item}</li>`).join("")}
+            ${items.map((item) => `<li style="margin-bottom: 8px; color: #CCC; padding-left: 4px;">&#9744; ${item}</li>`).join("")}
           </ul>
         </div>
 
         <div style="margin-bottom: 32px;">
-          <a href="${appUrl}/dashboard/page-editor" style="display: inline-block; background: #C8FF00; color: #000; font-weight: 700; padding: 14px 28px; border-radius: 999px; text-decoration: none; font-size: 15px;">
+          <a href="${appUrl}/dashboard/setup" style="display: inline-block; background: #C8FF00; color: #000; font-weight: 700; padding: 14px 28px; border-radius: 999px; text-decoration: none; font-size: 15px;">
             ${ctaText}
           </a>
         </div>
 
         ${footerNote}
 
-        <p style="color: #888; font-size: 13px; margin-top: 32px; border-top: 1px solid #2A2A2A; padding-top: 16px;">
+        <p style="color: #999; font-size: 13px; margin-top: 32px; border-top: 1px solid #DDD; padding-top: 16px;">
           Need help? Just reply to this email or hit us up at makeshift.melb@gmail.com
         </p>
       </div>
