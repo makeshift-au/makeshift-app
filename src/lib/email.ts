@@ -222,6 +222,114 @@ export async function sendArtistWelcome({
   });
 }
 
+// ---- Onboarding reminder (Day 1 / Day 3 / Day 7) ----
+export async function sendOnboardingReminder({
+  artistEmail,
+  artistName,
+  dayNumber,
+  missing,
+}: {
+  artistEmail: string;
+  artistName: string;
+  dayNumber: 1 | 3 | 7;
+  missing: {
+    profilePhoto: boolean;
+    heroImage: boolean;
+    bio: boolean;
+    listings: boolean;
+    stripe: boolean;
+  };
+}) {
+  if (!process.env.RESEND_API_KEY) {
+    console.log("[email] RESEND_API_KEY not set — skipping onboarding reminder");
+    return;
+  }
+
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://makeshift-au.com";
+  const firstName = artistName.split(" ")[0];
+
+  const subjects: Record<number, string> = {
+    1: `Your artist page is waiting, ${firstName}`,
+    3: `Quick nudge — finish setting up your Makeshift page`,
+    7: `Last reminder — let's get you live on Makeshift`,
+  };
+
+  const intros: Record<number, string> = {
+    1: `Hi ${firstName}, welcome again! Just a quick reminder that your artist page is ready to set up. Here's what's left to get you live on Makeshift:`,
+    3: `Hey ${firstName}, just checking in — you're almost there! A few things left before your page can go live:`,
+    7: `Hi ${firstName}, it's been a week since you joined and we'd love to see your work on the site. Here's what's still needed to go live:`,
+  };
+
+  // Build checklist based on what's actually missing
+  const items: string[] = [];
+  if (missing.profilePhoto) items.push("Upload a profile photo");
+  if (missing.heroImage) items.push("Add a hero image for your artist page");
+  if (missing.bio) items.push("Write a short bio so buyers know your story");
+  if (missing.listings) items.push("Add your first listing — even one is enough to go live");
+  if (missing.stripe) items.push("Connect your bank account via Stripe to receive payouts");
+
+  // If nothing is missing, don't send
+  if (items.length === 0) return;
+
+  const checklistHtml = items
+    .map(
+      (item) =>
+        `<li style="margin-bottom: 8px; color: #CCC;">${item}</li>`
+    )
+    .join("");
+
+  const ctaText =
+    dayNumber === 1
+      ? "Set up your page →"
+      : dayNumber === 3
+        ? "Finish your page →"
+        : "Complete your page →";
+
+  const footerNote =
+    dayNumber === 7
+      ? `<p style="color: #888; line-height: 1.6; margin-bottom: 24px;">
+          This is our last automated nudge — but you can set up your page any time.
+          If you have questions or need help, just reply to this email.
+        </p>`
+      : "";
+
+  await getResend()?.emails.send({
+    from: FROM,
+    to: artistEmail,
+    subject: subjects[dayNumber],
+    html: `
+      <div style="font-family: system-ui, -apple-system, sans-serif; max-width: 560px; margin: 0 auto; padding: 32px 0;">
+        <h1 style="font-size: 28px; font-weight: 800; margin-bottom: 16px;">
+          ${dayNumber === 1 ? "Let's get you set up." : dayNumber === 3 ? "You're almost there." : "We'd love to see your work."}
+        </h1>
+
+        <p style="color: #CCC; line-height: 1.6; margin-bottom: 24px;">
+          ${intros[dayNumber]}
+        </p>
+
+        <div style="background: #1A1A1A; border: 1px solid #2A2A2A; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
+          <p style="margin: 0 0 12px; font-weight: 700; color: #C8FF00; font-size: 14px;">TO-DO (${items.length} ${items.length === 1 ? "item" : "items"} remaining)</p>
+          <ul style="margin: 0; padding-left: 20px; list-style: none;">
+            ${items.map((item) => `<li style="margin-bottom: 8px; color: #CCC; padding-left: 4px;">☐ ${item}</li>`).join("")}
+          </ul>
+        </div>
+
+        <div style="margin-bottom: 32px;">
+          <a href="${appUrl}/dashboard/page-editor" style="display: inline-block; background: #C8FF00; color: #000; font-weight: 700; padding: 14px 28px; border-radius: 999px; text-decoration: none; font-size: 15px;">
+            ${ctaText}
+          </a>
+        </div>
+
+        ${footerNote}
+
+        <p style="color: #888; font-size: 13px; margin-top: 32px; border-top: 1px solid #2A2A2A; padding-top: 16px;">
+          Need help? Just reply to this email or hit us up at makeshift.melb@gmail.com
+        </p>
+      </div>
+    `,
+  });
+}
+
 // ---- Application confirmation ----
 export async function sendApplicationConfirmation({
   applicantEmail,

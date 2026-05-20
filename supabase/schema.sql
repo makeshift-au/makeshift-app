@@ -70,6 +70,7 @@ create table public.artists (
   stripe_onboarded boolean not null default false,
   founding_artist boolean not null default false,
   fee_rate numeric(4,2) not null default 10.00,
+  onboarding_reminder_sent integer not null default 0,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
