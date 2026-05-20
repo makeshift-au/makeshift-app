@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
-import { sendOnboardingReminder } from "@/lib/email";
+import { sendOnboardingReminder, sendOnboardingStaleAlert } from "@/lib/email";
 
 /**
  * GET /api/onboarding/reminders
@@ -117,6 +117,16 @@ export async function GET(request: Request) {
           dayNumber,
           missing,
         });
+
+        // On Day 7, also alert the admin so they can follow up personally
+        if (dayNumber === 7) {
+          await sendOnboardingStaleAlert({
+            artistName: artist.name,
+            artistEmail: profile.email,
+            daysSince: daysSinceApproval,
+            missing,
+          });
+        }
 
         // Update the reminder count
         await supabase

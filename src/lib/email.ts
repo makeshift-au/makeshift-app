@@ -330,6 +330,73 @@ export async function sendOnboardingReminder({
   });
 }
 
+// ---- Admin alert: artist hasn't completed setup after 7 days ----
+export async function sendOnboardingStaleAlert({
+  artistName,
+  artistEmail,
+  daysSince,
+  missing,
+}: {
+  artistName: string;
+  artistEmail: string;
+  daysSince: number;
+  missing: {
+    profilePhoto: boolean;
+    heroImage: boolean;
+    bio: boolean;
+    listings: boolean;
+    stripe: boolean;
+  };
+}) {
+  const ADMIN_EMAIL = process.env.MAKESHIFT_ADMIN_EMAIL || "makeshift.melb@gmail.com";
+
+  if (!process.env.RESEND_API_KEY) {
+    console.log("[email] RESEND_API_KEY not set — skipping stale onboarding alert");
+    return;
+  }
+
+  const missingItems: string[] = [];
+  if (missing.profilePhoto) missingItems.push("Profile photo");
+  if (missing.heroImage) missingItems.push("Hero image");
+  if (missing.bio) missingItems.push("Bio");
+  if (missing.listings) missingItems.push("Listings");
+  if (missing.stripe) missingItems.push("Stripe");
+
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://makeshift-au.com";
+
+  await getResend()?.emails.send({
+    from: FROM,
+    to: ADMIN_EMAIL,
+    subject: `Setup stalled: ${artistName} (${daysSince} days)`,
+    html: `
+      <div style="font-family: system-ui, -apple-system, sans-serif; max-width: 560px; margin: 0 auto; padding: 32px 0;">
+        <h1 style="font-size: 28px; font-weight: 800; margin-bottom: 16px; color: #111;">Artist setup incomplete</h1>
+
+        <p style="color: #333; line-height: 1.6; margin-bottom: 24px;">
+          <strong>${artistName}</strong> (${artistEmail}) signed up ${daysSince} days ago and still hasn't finished setting up their page. They've received all 3 automated reminders.
+        </p>
+
+        <div style="background: #1A1A1A; border: 1px solid #2A2A2A; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
+          <p style="margin: 0 0 12px; font-weight: 700; color: #C8FF00; font-size: 14px;">STILL MISSING</p>
+          <ul style="margin: 0; padding-left: 20px; list-style: none;">
+            ${missingItems.map((item) => `<li style="margin-bottom: 6px; color: #CCC; padding-left: 4px;">&#9744; ${item}</li>`).join("")}
+          </ul>
+        </div>
+
+        <p style="color: #333; line-height: 1.6;">
+          You might want to reach out personally to see if they need help.
+        </p>
+
+        <div style="margin-top: 24px;">
+          <a href="${appUrl}/admin/applications" style="display: inline-block; background: #C8FF00; color: #000; font-weight: 700; padding: 12px 24px; border-radius: 999px; text-decoration: none; font-size: 14px;">
+            View in admin &rarr;
+          </a>
+        </div>
+      </div>
+    `,
+  });
+}
+
 // ---- Application confirmation ----
 export async function sendApplicationConfirmation({
   applicantEmail,
