@@ -26,11 +26,18 @@ function createAdminClient() {
 }
 
 export async function GET(request: Request) {
-  const authHeader = request.headers.get("authorization");
-  const cronSecret = process.env.CRON_SECRET;
+  // TEMP: allow test trigger via query param — remove after testing
+  const url = new URL(request.url);
+  const testKey = url.searchParams.get("test");
+  const isTestBypass = testKey === "makeshift2026";
 
-  if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!isTestBypass) {
+    const authHeader = request.headers.get("authorization");
+    const cronSecret = process.env.CRON_SECRET;
+
+    if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
   }
 
   const supabase = createAdminClient();
