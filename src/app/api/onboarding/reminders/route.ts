@@ -39,7 +39,7 @@ export async function GET(request: Request) {
     // Get all onboarding artists
     const { data: artists, error: artistErr } = await supabase
       .from("artists")
-      .select("id, name, slug, bio, avatar_url, hero_url, stripe_onboarded, created_at, onboarding_reminder_sent")
+      .select("id, profile_id, name, slug, bio, avatar_url, hero_url, stripe_onboarded, created_at, onboarding_reminder_sent")
       .eq("status", "onboarding");
 
     if (artistErr) {
@@ -79,7 +79,7 @@ export async function GET(request: Request) {
       const { data: profile } = await supabase
         .from("profiles")
         .select("email")
-        .eq("id", artist.id)
+        .eq("id", artist.profile_id)
         .single();
 
       if (!profile?.email) {
@@ -89,7 +89,7 @@ export async function GET(request: Request) {
 
       // Check how many listings the artist has
       const { count: listingCount } = await supabase
-        .from("works")
+        .from("listings")
         .select("id", { count: "exact", head: true })
         .eq("artist_id", artist.id);
 
