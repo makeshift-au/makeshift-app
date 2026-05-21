@@ -8,6 +8,14 @@ export const metadata: Metadata = {
   },
   description:
     "A curated online marketplace for independent Australian artists and creators. Melbourne-based, community-led. By artists, for artists.",
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: "/apple-touch-icon.png",
+  },
   openGraph: {
     title: "Makeshift — Independent Australian Art Marketplace",
     description:
