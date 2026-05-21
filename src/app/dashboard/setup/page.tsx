@@ -43,12 +43,12 @@ export default async function SetupPage() {
       done: !!artist.avatar_url,
     },
     {
-      key: "hero",
-      label: "Add a hero image",
+      key: "cover",
+      label: "Add a cover image",
       description:
-        "This is the big banner at the top of your artist page. Use a photo of your work, your studio, or something that represents your vibe.",
+        "This is the big photo behind your name at the top of your artist page. Use a wide landscape shot of your work, your studio, or something that represents your vibe.",
       href: "/dashboard/page-editor",
-      done: !!artist.hero_url,
+      done: !!artist.banner_url || !!artist.hero_url,
     },
     {
       key: "bio",
