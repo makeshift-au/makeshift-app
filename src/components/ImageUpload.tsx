@@ -8,12 +8,14 @@ export default function ImageUpload({
   type,
   currentUrl,
   label,
+  hint,
   onUploaded,
 }: {
   artistId: string;
   type: "hero" | "avatar" | "banner" | "listing";
   currentUrl?: string;
   label: string;
+  hint?: string;
   onUploaded?: (url: string) => void;
 }) {
   const [uploading, setUploading] = useState(false);
@@ -21,10 +23,7 @@ export default function ImageUpload({
   const [error, setError] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
-  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
+  async function uploadFile(file: File) {
     // Validate file type
     if (!file.type.startsWith("image/")) {
       setError("Please select an image file");
@@ -73,13 +72,33 @@ export default function ImageUpload({
     }
   }
 
+  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    // For listing type, support multiple files uploaded sequentially
+    if (type === "listing" && files.length > 1) {
+      for (const file of Array.from(files)) {
+        await uploadFile(file);
+      }
+    } else {
+      await uploadFile(files[0]);
+    }
+
+    // Reset input so the same file can be re-selected
+    if (inputRef.current) inputRef.current.value = "";
+  }
+
   const isWide = type === "hero" || type === "banner";
 
   return (
     <div>
-      <label className="block font-mono text-xs text-midgrey tracking-[0.1em] uppercase mb-2">
+      <label className="block font-mono text-xs text-midgrey tracking-[0.1em] uppercase mb-1">
         {label}
       </label>
+      {hint && (
+        <p className="text-xs text-midgrey/70 mb-2">{hint}</p>
+      )}
 
       {previewUrl ? (
         <div
@@ -109,6 +128,7 @@ export default function ImageUpload({
         ref={inputRef}
         type="file"
         accept="image/*"
+        multiple={type === "listing"}
         onChange={handleFileChange}
         className="hidden"
       />

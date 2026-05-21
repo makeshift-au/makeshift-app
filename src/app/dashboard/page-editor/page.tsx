@@ -30,18 +30,21 @@ export default async function DashboardPageEditorPage() {
                 type="hero"
                 currentUrl={artist.hero_url ?? undefined}
                 label="Hero image"
+                hint="The large banner at the top of your artist page. Landscape works best (e.g. 1600×900)."
               />
               <ImageUpload
                 artistId={artist.id}
                 type="avatar"
                 currentUrl={artist.avatar_url ?? undefined}
                 label="Profile photo"
+                hint="Your headshot or logo — shown as a circle on your page and in search results."
               />
               <ImageUpload
                 artistId={artist.id}
                 type="banner"
                 currentUrl={artist.banner_url ?? undefined}
                 label="Banner image"
+                hint="A secondary image shown further down your page. Great for studio shots or process photos."
               />
             </div>
           </div>

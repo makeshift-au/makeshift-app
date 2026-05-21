@@ -208,6 +208,7 @@ export default function ListingEditor({
           artistId={artistId}
           type="listing"
           label="Add listing image"
+          hint="Upload photos of this work. You can add multiple — click again to add more."
           onUploaded={handleImageUploaded}
         />
       </div>
