@@ -129,19 +129,21 @@ export async function submitApplication(formData: FormData) {
 
     if (error) throw error;
 
-    // Send emails (fire-and-forget)
-    sendApplicationConfirmation({
-      applicantEmail: email,
-      applicantName: fullName,
-    }).catch((e) => console.error("Application confirmation email failed:", e));
+    // Send emails — await to ensure they complete before serverless function exits
+    await Promise.allSettled([
+      sendApplicationConfirmation({
+        applicantEmail: email,
+        applicantName: fullName,
+      }).catch((e) => console.error("Application confirmation email failed:", e)),
 
-    sendApplicationNotification({
-      applicantName: fullName,
-      applicantEmail: email,
-      disciplines,
-      city: city || undefined,
-      state: state || undefined,
-    }).catch((e) => console.error("Application admin notification failed:", e));
+      sendApplicationNotification({
+        applicantName: fullName,
+        applicantEmail: email,
+        disciplines,
+        city: city || undefined,
+        state: state || undefined,
+      }).catch((e) => console.error("Application admin notification failed:", e)),
+    ]);
 
     return { success: true };
   } catch (err) {
