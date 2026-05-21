@@ -38,6 +38,7 @@ async function resolveListingBySlug(slug: string) {
       artistId: artist?.id ?? "",
       artistSlug: artist?.slug ?? "",
       artistName: artist?.name ?? "Unknown",
+      artistDiscipline: artist?.discipline ?? "",
       artistBg: artist?.bg ?? "bg-acid",
       title: dbListing.title,
       description: dbListing.description ?? "",
@@ -60,6 +61,7 @@ async function resolveListingBySlug(slug: string) {
     artistId: "",
     artistSlug: mock.artistSlug,
     artistName: artist?.name ?? "Unknown",
+    artistDiscipline: artist?.discipline ?? "",
     artistBg: artist?.bg ?? "bg-acid",
     title: mock.title,
     description: mock.description,
@@ -104,7 +106,7 @@ export default async function WorkPage({ params }: Props) {
             {listing.title}
           </h1>
           <p className="font-mono text-sm text-midgrey tracking-[0.05em] mb-6">
-            BY {listing.artistName.toUpperCase()} &middot; HAND-PAINTED SHIRT
+            BY {listing.artistName.toUpperCase()}{listing.artistDiscipline ? <> &middot; {listing.artistDiscipline.replace("-", " ").toUpperCase()}</> : null}
           </p>
 
           <div className="font-display font-[800] text-3xl md:text-4xl text-lime mb-6">
