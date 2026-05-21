@@ -27,17 +27,24 @@ export default async function DashboardPageEditorPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <ImageUpload
                 artistId={artist.id}
-                type="banner"
-                currentUrl={artist.banner_url ?? artist.hero_url ?? undefined}
-                label="Cover image"
-                hint="The large photo behind your name at the top of your page. Use a wide landscape image — something that shows off your work or studio (e.g. 1600×900)."
+                type="hero"
+                currentUrl={artist.hero_url ?? undefined}
+                label="Featured work image"
+                hint="This is what people see when browsing artists — make it your best piece. A strong, eye-catching photo of your work gets the most clicks."
               />
               <ImageUpload
                 artistId={artist.id}
                 type="avatar"
                 currentUrl={artist.avatar_url ?? undefined}
                 label="Profile photo"
-                hint="Shown as a small circle in your sidebar and on Browse Artists. A headshot or your logo works well."
+                hint="Your headshot or logo — shown as a small circle in the sidebar of your artist page."
+              />
+              <ImageUpload
+                artistId={artist.id}
+                type="banner"
+                currentUrl={artist.banner_url ?? undefined}
+                label="Cover image"
+                hint="The wide banner behind your name at the top of your artist page. A studio shot, workspace, or landscape of your work looks great here (e.g. 1600×900)."
               />
             </div>
           </div>

@@ -35,10 +35,18 @@ export default async function SetupPage() {
 
   const steps: Step[] = [
     {
-      key: "avatar",
-      label: "Upload a profile photo",
+      key: "hero",
+      label: "Upload a featured work image",
       description:
-        "Buyers want to see who they're supporting. A clear headshot or studio photo works best.",
+        "This is what people see when browsing artists — pick your best piece. A strong, eye-catching photo of your work gets the most clicks.",
+      href: "/dashboard/page-editor",
+      done: !!artist.hero_url,
+    },
+    {
+      key: "avatar",
+      label: "Add a profile photo",
+      description:
+        "Your headshot or logo — shown in the sidebar of your artist page. Buyers want to see who they're supporting.",
       href: "/dashboard/page-editor",
       done: !!artist.avatar_url,
     },
@@ -46,9 +54,9 @@ export default async function SetupPage() {
       key: "cover",
       label: "Add a cover image",
       description:
-        "This is the big photo behind your name at the top of your artist page. Use a wide landscape shot of your work, your studio, or something that represents your vibe.",
+        "The wide banner behind your name at the top of your artist page. A studio shot, workspace photo, or landscape of your work looks great here.",
       href: "/dashboard/page-editor",
-      done: !!artist.banner_url || !!artist.hero_url,
+      done: !!artist.banner_url,
     },
     {
       key: "bio",
