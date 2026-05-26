@@ -104,12 +104,12 @@ export default async function HomePage() {
             </Link>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5">
-            {/* Maccs Customs — the only real artist card */}
-            {featured.filter((a) => a.slug === "maccs-customs").map((a) => (
+            {/* Featured artists from the database */}
+            {featured.map((a) => (
               <ArtistCard key={a.slug} artist={a} />
             ))}
             {/* Fill remaining spots with "Your Art Here" placeholders */}
-            {Array.from({ length: 7 }).map((_, i) => (
+            {Array.from({ length: Math.max(0, 8 - featured.length) }).map((_, i) => (
               <Link
                 key={`coming-${i}`}
                 href="/join"
