@@ -33,12 +33,20 @@ export async function POST(request: Request) {
     // Verify artist ownership
     const { data: artist } = await supabase
       .from("artists")
-      .select("id, profile_id")
+      .select("id, profile_id, stripe_onboarded")
       .eq("id", artistId)
       .single();
 
     if (!artist || artist.profile_id !== user.id) {
       return NextResponse.json({ error: "Not authorized" }, { status: 403 });
+    }
+
+    // Require Stripe onboarding before creating new listings
+    if (!id && !artist.stripe_onboarded) {
+      return NextResponse.json(
+        { error: "You must connect your bank account before creating listings. Go to Dashboard â Billing to set up payouts." },
+        { status: 403 }
+      );
     }
 
     const slug = slugify(title || "untitled");
@@ -58,7 +66,7 @@ export async function POST(request: Request) {
     let result;
 
     if (id) {
-      // Update existing listing — verify it belongs to the artist
+      // Update existing listing â verify it belongs to the artist
       const { data: existing } = await supabase
         .from("listings")
         .select("id, artist_id")
