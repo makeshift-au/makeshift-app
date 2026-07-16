@@ -11,12 +11,12 @@ type Props = { params: Promise<{ slug: string }> };
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const listing = await resolveListingBySlug(slug);
-  if (!listing) return { title: "Work — Makeshift" };
+  if (!listing) return { title: "Work â Makeshift" };
   const description = listing.description
-    ? `${listing.description.slice(0, 155)}…`
-    : `${listing.title} by ${listing.artistName} — available on Makeshift.`;
+    ? `${listing.description.slice(0, 155)}â¦`
+    : `${listing.title} by ${listing.artistName} â available on Makeshift.`;
   return {
-    title: `${listing.title} by ${listing.artistName} — Makeshift`,
+    title: `${listing.title} by ${listing.artistName} â Makeshift`,
     description,
     openGraph: {
       title: `${listing.title} by ${listing.artistName}`,
@@ -28,10 +28,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 /** Try Supabase first (by slug column), fall back to mock data */
 async function resolveListingBySlug(slug: string) {
-  // Try Supabase — listings table may have a `slug` column
+  // Try Supabase â listings table may have a `slug` column
   const dbListing = await getDBListing(slug);
   if (dbListing) {
     const artist = dbListing.artists;
+
+    // Hide listings from artists who haven't completed Stripe onboarding
+    if (artist && !artist.stripe_onboarded) return null;
     const imageUrls: string[] = dbListing.image_urls ?? [];
     return {
       id: dbListing.id,
@@ -46,7 +49,7 @@ async function resolveListingBySlug(slug: string) {
       imageUrl: imageUrls[0] ?? "",
       material: dbListing.material ?? "",
       dimensions: dbListing.dimensions ?? "",
-      leadTime: dbListing.lead_time ?? "1–2 weeks",
+      leadTime: dbListing.lead_time ?? "1â2 weeks",
       status: dbListing.status,
       canBuy: !!artist?.stripe_account_id,
     };
@@ -121,7 +124,7 @@ export default async function WorkPage({ params }: Props) {
             {[
               ["Material", listing.material],
               ["Size", listing.dimensions],
-              ["Condition", "New — handmade to order"],
+              ["Condition", "New â handmade to order"],
               ["Lead time", listing.leadTime],
             ].map(([k, v]) => (
               <div key={k} className="flex justify-between border-b border-dark2 pb-3">
