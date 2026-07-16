@@ -25,23 +25,47 @@ export default async function DashboardListingsPage() {
         All your listed work. Edit, pause, or add new listings.
       </p>
 
+      {artist && !artist.stripe_onboarded && (
+        <div className="bg-dark1 border border-lime/30 rounded-2xl p-5 mb-6 flex items-center justify-between gap-4">
+          <div>
+            <p className="font-display font-bold text-sm">Connect your bank account to start listing</p>
+            <p className="text-midgrey text-xs mt-1">You need to set up payouts before you can add work for sale.</p>
+          </div>
+          <Link
+            href="/dashboard/billing"
+            className="bg-lime text-black px-5 py-2.5 rounded-full font-semibold text-sm flex-shrink-0"
+          >
+            Connect &rarr;
+          </Link>
+        </div>
+      )}
+
       <div className="flex justify-between items-center mb-6">
         <p className="text-midgrey">
           {listings.length} listing{listings.length !== 1 ? "s" : ""}
-          {soldCount > 0 && ` · ${soldCount} sold`}
-          {draftCount > 0 && ` · ${draftCount} draft`}
+          {soldCount > 0 && ` Â· ${soldCount} sold`}
+          {draftCount > 0 && ` Â· ${draftCount} draft`}
         </p>
-        <Link
-          href="/dashboard/listings/new"
-          className="bg-lime text-black px-5 py-2.5 rounded-full font-semibold text-sm"
-        >
-          + New listing
-        </Link>
+        {artist?.stripe_onboarded ? (
+          <Link
+            href="/dashboard/listings/new"
+            className="bg-lime text-black px-5 py-2.5 rounded-full font-semibold text-sm"
+          >
+            + New listing
+          </Link>
+        ) : (
+          <span
+            className="bg-dark2 text-midgrey px-5 py-2.5 rounded-full font-semibold text-sm cursor-not-allowed"
+            title="Connect your bank account first"
+          >
+            + New listing
+          </span>
+        )}
       </div>
 
       {listings.length === 0 ? (
         <div className="bg-dark1 border border-dark2 rounded-2xl p-12 text-center">
-          <div className="text-4xl mb-4">🎨</div>
+          <div className="text-4xl mb-4">ð¨</div>
           <h3 className="font-display font-bold text-xl mb-2">No listings yet</h3>
           <p className="text-midgrey text-sm max-w-sm mx-auto">
             Add your first listing to start selling on Makeshift.
@@ -50,7 +74,7 @@ export default async function DashboardListingsPage() {
         </div>
       ) : (
         <>
-          {/* ═══ MOBILE: Card layout ═══ */}
+          {/* âââ MOBILE: Card layout âââ */}
           <div className="md:hidden space-y-3">
             {listings.map((listing: any) => (
               <div
@@ -97,7 +121,7 @@ export default async function DashboardListingsPage() {
             ))}
           </div>
 
-          {/* ═══ DESKTOP: Table layout ═══ */}
+          {/* âââ DESKTOP: Table layout âââ */}
           <div className="hidden md:block bg-dark1 border border-dark2 rounded-2xl overflow-hidden">
             <table className="w-full text-sm">
               <thead>
