@@ -159,7 +159,7 @@ export async function approveApplication(applicationId: string) {
     }
   } catch (billingErr) {
     console.error("Stripe billing setup error:", billingErr);
-    // Non-fatal — artist is created, billing can be set up later
+    // Non-fatal â artist is created, billing can be set up later
   }
 
   // --- Step 5: Generate magic link and send welcome email ---
@@ -176,7 +176,7 @@ export async function approveApplication(applicationId: string) {
 
   if (linkErr || !linkData) {
     console.error("Generate magic link error:", linkErr);
-    // Non-fatal — the artist can still log in via /login
+    // Non-fatal â the artist can still log in via /login
   }
 
   // Build the login URL: use the magic link if we got one, otherwise fall back to /login
@@ -191,7 +191,113 @@ export async function approveApplication(applicationId: string) {
     });
   } catch (emailErr) {
     console.error("Welcome email error:", emailErr);
-    // Non-fatal — don't fail the whole approval
+    // Non-fatal â don't fail the whole approval
+  }
+
+  return { success: true };
+}
+
+// ---- Repair Approved Application (re-create missing artist record) ----
+export async function repairApproval(applicationId: string) {
+  const supabase = await createClient();
+  const admin = createAdminClient();
+
+  // Get application data
+  const { data: app, error: fetchErr } = await supabase
+    .from("applications")
+    .select("*")
+    .eq("id", applicationId)
+    .single();
+
+  if (fetchErr || !app) return { error: "Application not found" };
+  if (app.status !== "approved") return { error: "Application is not approved" };
+
+  // Check if artist already exists for this email
+  const { data: existingUsers } = await admin.auth.admin.listUsers();
+  const existingUser = existingUsers?.users?.find(
+    (u) => u.email === app.email
+  );
+
+  if (!existingUser) return { error: "No auth user found for this email. Try re-approving." };
+
+  // Check if artist record already exists
+  const { data: existingArtist } = await admin
+    .from("artists")
+    .select("id")
+    .eq("profile_id", existingUser.id)
+    .single();
+
+  if (existingArtist) return { error: "Artist record already exists." };
+
+  // Create the artist record
+  const slug =
+    app.slug_preference?.toLowerCase().replace(/[^a-z0-9-]/g, "-") ||
+    app.full_name.toLowerCase().replace(/[^a-z0-9]/g, "-");
+
+  // Ensure slug is unique by appending random suffix if needed
+  const { data: slugCheck } = await admin
+    .from("artists")
+    .select("id")
+    .eq("slug", slug)
+    .single();
+
+  const finalSlug = slugCheck ? `${slug}-${Math.random().toString(36).slice(2, 6)}` : slug;
+
+  const { error: insertErr } = await admin.from("artists").insert({
+    slug: finalSlug,
+    name: app.full_name,
+    discipline: app.disciplines?.[0] ?? "visual-art",
+    location: [app.city, app.state].filter(Boolean).join(", "),
+    tagline: app.bio ?? "",
+    bio: app.work_description ?? "",
+    instagram: app.instagram ?? "",
+    website: app.website ?? "",
+    spotify_url: app.spotify_url ?? null,
+    apple_music_url: app.apple_music_url ?? null,
+    commissions: true,
+    price_range: app.price_range ?? "",
+    status: "onboarding",
+    founding_artist: true,
+    fee_rate: 10.0,
+    profile_id: existingUser.id,
+  });
+
+  if (insertErr) {
+    console.error("Repair: create artist error:", insertErr);
+    return { error: "Failed to create artist profile: " + insertErr.message };
+  }
+
+  // Set up Stripe billing
+  try {
+    const { data: newArtist } = await admin
+      .from("artists")
+      .select("id, founding_artist")
+      .eq("slug", finalSlug)
+      .single();
+
+    if (newArtist) {
+      const stripeCustomerId = await createCustomer({
+        email: app.email,
+        name: app.full_name,
+        artistId: newArtist.id,
+      });
+
+      const subscription = await createSubscription({
+        customerId: stripeCustomerId,
+        isFoundingArtist: newArtist.founding_artist ?? true,
+      });
+
+      await admin
+        .from("artists")
+        .update({
+          stripe_customer_id: stripeCustomerId,
+          subscription_status: subscription.status,
+          subscription_started_at: new Date().toISOString(),
+        })
+        .eq("id", newArtist.id);
+    }
+  } catch (billingErr) {
+    console.error("Repair: Stripe billing setup error:", billingErr);
   }
 
   return { success: true };
