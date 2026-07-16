@@ -6,6 +6,7 @@ import {
   approveApplication,
   rejectApplication,
   markInReview,
+  repairApproval,
 } from "@/app/actions/admin";
 
 type Application = {
@@ -46,7 +47,7 @@ function timeAgo(dateStr: string) {
   return `${days}d ago`;
 }
 
-/* ── Detail panel (shared between table & card) ── */
+/* ââ Detail panel (shared between table & card) ââ */
 function DetailPanel({ a }: { a: Application }) {
   return (
     <div className="p-4 md:p-6 bg-black/50">
@@ -59,7 +60,7 @@ function DetailPanel({ a }: { a: Application }) {
         )}
         <div>
           <span className="font-mono text-[10px] text-midgrey tracking-[0.1em] block mb-1">LOCATION</span>
-          {[a.city, a.state].filter(Boolean).join(", ") || "—"}
+          {[a.city, a.state].filter(Boolean).join(", ") || "â"}
         </div>
         {a.price_range && (
           <div>
@@ -174,7 +175,16 @@ export default function AdminApplicationsTable() {
     setActionLoading(null);
   }
 
-  /* ── Action buttons (shared) ── */
+  async function handleRepair(id: string) {
+    setActionLoading(id);
+    const result = await repairApproval(id);
+    if (result.error) alert(result.error);
+    else alert("Artist profile created successfully!");
+    await loadApps();
+    setActionLoading(null);
+  }
+
+  /* ââ Action buttons (shared) ââ */
   function ActionButtons({ a }: { a: Application }) {
     if (actionLoading === a.id) {
       return <span className="font-mono text-xs text-midgrey">...</span>;
@@ -206,7 +216,16 @@ export default function AdminApplicationsTable() {
           </>
         )}
         {a.status === "approved" && (
-          <span className="font-mono text-[10px] text-lime tracking-[0.05em]">✓ ONBOARDING</span>
+          <>
+            <span className="font-mono text-[10px] text-lime tracking-[0.05em]">â ONBOARDING</span>
+            <button
+              onClick={(e) => { e.stopPropagation(); handleRepair(a.id); }}
+              className="border border-amber-500 text-amber-500 font-mono text-[10px] px-3 py-1 rounded-full tracking-[0.05em] hover:bg-amber-500/10"
+              title="Re-create artist profile if it's missing"
+            >
+              REPAIR
+            </button>
+          </>
         )}
         {a.status === "rejected" && (
           <span className="font-mono text-[10px] text-midgrey tracking-[0.05em]">CLOSED</span>
@@ -237,7 +256,7 @@ export default function AdminApplicationsTable() {
                 : "bg-dark1 border border-dark2 text-lightgrey hover:border-lime hover:text-lime"
             }`}
           >
-            {label} · {counts[key]}
+            {label} Â· {counts[key]}
           </button>
         ))}
       </div>
@@ -266,7 +285,7 @@ export default function AdminApplicationsTable() {
         </div>
       ) : (
         <>
-          {/* ═══ MOBILE: Card layout ═══ */}
+          {/* âââ MOBILE: Card layout âââ */}
           <div className="md:hidden space-y-3">
             {filteredApps.map((a) => (
               <div
@@ -294,7 +313,7 @@ export default function AdminApplicationsTable() {
                   </div>
                   {/* Meta row */}
                   <div className="flex items-center gap-4 text-xs text-midgrey mb-3">
-                    <span>{a.disciplines?.join(", ") || "—"}</span>
+                    <span>{a.disciplines?.join(", ") || "â"}</span>
                     <span className="font-mono">{timeAgo(a.created_at)}</span>
                   </div>
                   {/* Actions */}
@@ -310,7 +329,7 @@ export default function AdminApplicationsTable() {
             ))}
           </div>
 
-          {/* ═══ DESKTOP: Table layout ═══ */}
+          {/* âââ DESKTOP: Table layout âââ */}
           <div className="hidden md:block bg-dark1 border border-dark2 rounded-2xl overflow-hidden">
             <table className="w-full text-sm">
               <thead>
@@ -351,7 +370,7 @@ export default function AdminApplicationsTable() {
                           </div>
                         </div>
                       </td>
-                      <td className="p-4">{a.disciplines?.join(", ") || "—"}</td>
+                      <td className="p-4">{a.disciplines?.join(", ") || "â"}</td>
                       <td className="p-4 font-mono text-xs text-midgrey">{timeAgo(a.created_at)}</td>
                       <td className="p-4">
                         <span className={`inline-block font-mono text-[10px] font-bold tracking-[0.1em] px-3 py-1 rounded-full ${STATUS_COLORS[a.status] ?? "bg-dark2 text-midgrey"}`}>
