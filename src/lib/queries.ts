@@ -1,5 +1,5 @@
 /**
- * Data access layer — tries Supabase first, falls back to mock data.
+ * Data access layer â tries Supabase first, falls back to mock data.
  * Once Jordan runs the schema + seed SQL, this seamlessly uses real data.
  */
 import { createClient } from "@/lib/supabase/server";
@@ -146,6 +146,16 @@ export async function getCategoryBySlug(slug: string) {
 export async function getListingsByArtist(artistId: string) {
   try {
     const supabase = await createClient();
+
+    // Don't show listings on the public site if the artist hasn't completed Stripe onboarding
+    const { data: artist } = await supabase
+      .from("artists")
+      .select("stripe_onboarded")
+      .eq("id", artistId)
+      .single();
+
+    if (!artist?.stripe_onboarded) return [];
+
     const { data, error } = await supabase
       .from("listings")
       .select("*")
@@ -174,6 +184,10 @@ export async function getListing(idOrSlug: string) {
       .single();
 
     if (error) throw error;
+
+    // Hide listings from artists who haven't completed Stripe onboarding
+    if (data?.artists && !data.artists.stripe_onboarded) return null;
+
     return data;
   } catch {
     return null;
