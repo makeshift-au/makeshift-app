@@ -20,7 +20,24 @@ export default async function NewListingPage() {
         Add a new piece of work to your store.
       </p>
 
-      {artist ? (
+      {artist && !artist.stripe_onboarded ? (
+        <div className="bg-dark1 border border-lime/30 rounded-2xl p-12 text-center">
+          <h3 className="font-display font-bold text-xl mb-2">
+            Connect your bank account first
+          </h3>
+          <p className="text-midgrey text-sm mb-4">
+            Before you can list work for sale, you need to connect your bank
+            account so you can receive payouts when you make a sale. It only
+            takes a couple of minutes.
+          </p>
+          <Link
+            href="/dashboard/billing"
+            className="inline-block bg-lime text-black font-bold px-6 py-3 rounded-full text-sm hover:bg-white transition-colors"
+          >
+            Connect bank account &rarr;
+          </Link>
+        </div>
+      ) : artist ? (
         <>
           <Link
             href="/dashboard/listings"
